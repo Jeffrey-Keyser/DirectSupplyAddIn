@@ -1,0 +1,2 @@
+bin\Debug\OfficeAppManifests\Outlook-Add-in-Microsoft-Graph-ASPNET.xml
+C:\Users\JeffPC\Source\Repos\PnP-OfficeAddins\Samples\auth\Outlook-Add-in-Microsoft-Graph-ASPNET\Outlook-Add-in-Microsoft-Graph-ASPNET\bin\Debug\Outlook-Add-in-Microsoft-Graph-ASPNET.debugapp
