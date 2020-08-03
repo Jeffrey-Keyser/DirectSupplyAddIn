@@ -1,4 +1,9 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. Licensed under the MIT license. See full license in the root of the repo.
+using Microsoft.Ajax.Utilities;
+using Microsoft.Graph;
+using System;
+using System.IO;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace OutlookAddinMicrosoftGraphASPNET.Helpers
@@ -23,6 +28,70 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
             return BaseMSGraphSearchUrl + workbooksSearchRelativeUrl + selectedProperties;
             //return GetFilesUrl;
         }
+
+
+        // ADDED
+        internal static async Task<IUserMessagesCollectionPage> getConversationIdMessages(string accessToken, string conversationId)
+        {
+            var graphClient = new GraphServiceClient(
+                new DelegateAuthenticationProvider(
+                    async (requestMessage) =>
+                    {
+                        requestMessage.Headers.Authorization =
+                            new AuthenticationHeaderValue("Bearer", accessToken);
+                    }));
+
+            try
+            {
+
+               var messages = await graphClient.Me.Messages.Request()
+                    .GetAsync();
+
+                return messages;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine(ex.ToString());
+                return null;
+            }
+
+        }
+
+        // ADDED
+        internal static async Task<DriveItem> saveAttachmentOneDrive(string accessToken, string filename, Stream fileContent)
+        {
+            var graphClient = new GraphServiceClient(
+                new DelegateAuthenticationProvider(
+                    async (requestMessage) =>
+                    {
+                        requestMessage.Headers.Authorization =
+                            new AuthenticationHeaderValue("Bearer", accessToken);
+                    }));
+
+
+            string relativeFilePath = "Outlook Attachments/" + filename;
+
+            try
+            {
+                // This method only supports files 4MB or less
+                DriveItem newItem = await graphClient.Me.Drive.Root.ItemWithPath(relativeFilePath)
+                    .Content.Request().PutAsync<DriveItem>(fileContent);
+
+                return newItem;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine(ex.ToString());
+                return null;
+            }
+
+        }
+
+
+
+
     }
+
+
 }
 

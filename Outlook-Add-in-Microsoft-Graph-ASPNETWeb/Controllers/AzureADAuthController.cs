@@ -49,7 +49,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 
             // TODO: ADDED withAuth
             ConfidentialClientApplicationBuilder clientBuilder = ConfidentialClientApplicationBuilder.Create(Settings.AzureADClientId)
-                                                                    .WithAuthority(AzureCloudInstance.AzurePublic, Settings.AzureADTenantId)
+                                                                    .WithAuthority(Settings.AzureADAuthority)
                                                                     .WithClientSecret(Settings.AzureADClientSecret);
 
             ConfidentialClientApplication clientApp = (ConfidentialClientApplication)clientBuilder.Build();
@@ -80,7 +80,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 
 
             ConfidentialClientApplication clientApp = (ConfidentialClientApplication)clientBuilder.Build();
-            string[] graphScopes = { "Files.Read.All", "User.Read" };
+            string[] graphScopes = { "Files.Read.All", "User.Read", "Mail.ReadWrite" };
             var authStateString = Request.QueryString["state"];
             var authState = JsonConvert.DeserializeObject<AuthState>(authStateString);
 
@@ -95,23 +95,17 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                 var authResult = await authResultBuilder.ExecuteAsync();
 
                 /* Start ADD */
-                var graphClient = new GraphServiceClient(
+            /*    var graphClient = new GraphServiceClient(
                     new DelegateAuthenticationProvider(
                         async (requestMessage) =>
                         {
                             requestMessage.Headers.Authorization =
                                 new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
                         }));
-                var user = await graphClient.Me.Request()
-                    .Select(u => new {
-                        u.DisplayName,
-                        u.Mail,
-                        u.UserPrincipalName,
-                        u.Surname,
-                        u.Id
-                    })
-                    .GetAsync();
-
+                var user = await graphClient.Me.Messages.Request()
+                    .Select("sender,subject")
+                    .GetAsync(); 
+             */
 
 
                 /* End ADD */

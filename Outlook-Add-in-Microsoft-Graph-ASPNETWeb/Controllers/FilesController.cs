@@ -8,6 +8,13 @@ using System.Net;
 using OutlookAddinMicrosoftGraphASPNET.Helpers;
 using OutlookAddinMicrosoftGraphASPNET.Models;
 using System;
+using Microsoft.Ajax.Utilities;
+using Microsoft.Graph;
+using System.Web.Http.Results;
+using System.IdentityModel;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 {
@@ -38,6 +45,84 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
         public ActionResult Index()
         {
             return View();
+        }
+
+        /// <summary>
+        /// Gets emails with conversation id 
+        /// </summary>
+        /// <returns>Emails with the specific conversation id.</returns>
+        public async Task<JsonResult> ConversationMessages(string convoId)
+        {
+
+            // Get access token
+            var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
+
+            var messages = await GraphApiHelper.getConversationIdMessages(token.AccessToken, convoId);
+
+            return Json(messages, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Save an attachment to OneDrive
+        /// </summary>
+        /// <returns> Attachment that was successfully saved </returns>
+        [System.Web.Http.HttpPost]
+        public async Task<JsonResult> SaveAttachmentOneDrive([FromBody]SaveAttachmentRequest request)
+        {
+
+            if (request == null || !request.IsValid())
+            {
+                return null;
+            }
+
+            using (var client = new HttpClient())
+            {
+                // Get content bytes
+                string baseAttachmentUri = request.outlookRestUrl;
+                if (!baseAttachmentUri.EndsWith("/"))
+                    baseAttachmentUri += "/";
+                baseAttachmentUri += "v2.0/me/messages/" + request.messageId + "/attachments/" + request.attachmentId;
+
+                var getAttachmentReq = new HttpRequestMessage(HttpMethod.Get, baseAttachmentUri);
+
+                // Headers
+                getAttachmentReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.outlookToken);
+                getAttachmentReq.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                var result = await client.SendAsync(getAttachmentReq);
+                string json = await result.Content.ReadAsStringAsync();
+                OutlookAttachment attachment = JsonConvert.DeserializeObject<OutlookAttachment>(json);
+
+                // For files, build a stream directly from ContentBytes
+                if (attachment.Size < (4 * 1024 * 1024))
+                {
+                    MemoryStream fileStream = new MemoryStream(Convert.FromBase64String(attachment.ContentBytes));
+
+
+                    // Get access token
+                    var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
+
+                    var attachments = await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, MakeFileNameValid(request.filename), fileStream);
+
+                    return Json(attachments, JsonRequestBehavior.AllowGet);
+
+                }
+                else
+                {
+                    // TODO: Implement functionality to support > 4 MB files
+
+                    return null;
+                }
+
+            }
+
+        }
+
+        // Helper function that formats filenames for onedrive upload
+        private string MakeFileNameValid(string originalFileName)
+        {
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            return string.Join("_", originalFileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
         }
     }
 }

@@ -9,12 +9,12 @@ Office.initialize = function () {
         app.initialize();
 
 
-        $("#getOneDriveFilesButton").click(getFileNamesFromGraph); // Dismissed currently
+      //  $("#getOneDriveFilesButton").click(getFileNamesFromGraph); // Dismissed currently
         $("#logoutO365PopupButton").click(logout);
-        $("#getEmailInfo").click(getEmailInfo);
-        $("#getAttachmentInfo").click(getFileNamesFromGraph);
+        $("#getConversationWithId").click(getConversationWithId);
+        $("#saveAttachmentsOneDrive").click(saveAttachmentsOneDrive);
         $("#deleteCurrentEmail").click(deleteCurrentEmail);
-        $("#downloadAttachmentLocal").click(downloadAttachmentsLocally);
+     //   $("#downloadAttachmentLocal").click(downloadAttachmentsLocally);
 
     });
 };
@@ -230,118 +230,58 @@ function deleteCurrentEmail() {
 
 
 
-function getEmailInfo() {
-
+// Get messages in same conversation as current email
+// Does a graph API call
+function getConversationWithId() {
+    
     // REST call
     Office.context.mailbox.getCallbackTokenAsync({ isRest: true }, function (result) {
         if (result.status === "succeeded") {
             var accessToken = result.value;
-            console.debug("accessToken: " + accessToken);
-
             // Use the access token.
             // execute the function for the Mail API call
             // executeCall(accessToken, args);
 
             // Get the item's REST ID.
             var itemId = getItemRestId();
-            console.debug("Rest item id: " + itemId);
-            // Construct the REST URL to the current item.
-            // Details for formatting the URL can be found at
-            // https://docs.microsoft.com/previous-versions/office/office-365-api/api/version-2.0/mail-rest-operations#get-messages.
-            var getMessageUrl = Office.context.mailbox.restUrl +
-                '/v2.0/me/messages/' + itemId;
 
-            console.debug("get request url: ITEM " + getMessageUrl);
-
-            $.ajax({
-                url: getMessageUrl,
-                dataType: 'json',
-                headers: { 'Authorization': 'Bearer ' + accessToken }
-            }).done(function (item) {
-
-                // Message is passed in `item`.
-                console.debug("Sender info: " + JSON.stringify(item["Sender"]));
-                console.debug("Reciever Info: " + JSON.stringify(item["ToRecipients"]));
-
-                console.debug("Conversation id: " + JSON.stringify(item["ConversationId"]));
-
-            }).fail(function (error, textStatus, errorThrown) {
-                console.debug("Error after sending ajax call " + textStatus + " Error thrown: " + errorThrown);
-                // Handle error.
-            });
-
-
-
-        } else {
-            // Handle the error.
-        }
-    });
-
-
-
-}
-
-function downloadAttachmentsLocally() {
-
-    var item = Office.context.mailbox.item;
-
-    if (item.attachments.length > 0) {
-        for (var i = 0; i < item.attachments.length; i++) {
-            // TODO: ContentBytes?
-            var attachment = item.attachments[i];
-
-            downloadAttachment(attachment.id);
-        }
-    }
-
-}
-
-
-function downloadAttachment(attachmentId) {
-
-
-    // REST call
-    Office.context.mailbox.getCallbackTokenAsync({ isRest: true }, function (result) {
-        if (result.status === "succeeded") {
-            var accessToken = result.value;
-            console.debug("accessToken: " + accessToken);
-
-            // Use the access token.
-            // execute the function for the Mail API call
-            // executeCall(accessToken, args);
-
-            // Get the item's REST ID.
-            var itemId = getItemRestId();
-            var attachmentRestId = getAttachmentRestId(attachmentId);
             console.debug("accessToken : " + accessToken);
-            console.debug("attachmentId : " + attachmentId);
             console.debug("Rest item id: " + itemId);
             // Construct the REST URL to the current item.
             // Details for formatting the URL can be found at
             // https://docs.microsoft.com/previous-versions/office/office-365-api/api/version-2.0/mail-rest-operations#get-attachments.
             var getMessageUrl = Office.context.mailbox.restUrl +
-                '/v2.0/me/messages/' + itemId + '/attachments/' + attachmentRestId;
+                '/v2.0/me/messages/' + itemId;
 
             console.debug("get request url: ATTACHMENT CONTENTS " + getMessageUrl);
 
+            // Get conversation id
             $.ajax({
                 url: getMessageUrl,
                 dataType: 'json',
                 headers: { 'Authorization': 'Bearer ' + accessToken }
             }).done(function (item) {
 
-                // Message is passed in `item`.
+                var conversationId = JSON.stringify(item["ConversationId"]);
+                console.debug("Conversation ID : " + conversationId);
 
-                var contentBytes = JSON.stringify(item["ContentBytes"]);
-                var contentType = JSON.stringify(item["ContentType"]);
 
-                // Get rid of leading / ending double quotes
-                contentBytes = contentBytes.replace(/['"]+/g, '');
-                contentType = contentType.replace(/['"]+/g, '');
+                // Controller call does a GRAPH API call.
+                $.ajax({
+                    url: "/files/conversationmessages",
+                    type: "GET",
+                    data: { convoId: conversationId },
+                })
+                    .done(function (result) {
 
-                console.debug("Content Bytes: " + contentBytes + " Type : " + contentType);
+                        console.debug("Success: " + result);
 
-                download(contentBytes, item["Name"], contentType);
+                    })
+                    .fail(function (result) {
+                        app.showNotification("Cannot get data from MS Graph: " + result.toString());
+                    });
+
+
 
             }).fail(function (error, textStatus, errorThrown) {
                 console.debug("Error after sending ajax call " + textStatus + " Error thrown: " + errorThrown);
@@ -355,31 +295,62 @@ function downloadAttachment(attachmentId) {
         }
     });
 
-
 }
 
-// Function to download data to a file
-function download(data, filename, type) {
 
-    console.debug("\nEnter Download");
+function saveAttachmentsOneDrive() {
 
-    var readableData = atob(data);
 
-    console.debug("readableData: " + readableData);
+    var item = Office.context.mailbox.item;
 
-    var file = new Blob([readableData], { type: type });
-    if (window.navigator.msSaveOrOpenBlob) // IE10+
-        window.navigator.msSaveOrOpenBlob(file, filename);
-    else { // Other browsers
-        var a = document.createElement("a"),
-            url = URL.createObjectURL(file);
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function () {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 0);
+    // For each attachment
+    for (var i = 0; i < item.attachments.length; i++)
+    {
+        var filename = item.attachments[i].name;
+        var attachmentRestId = getAttachmentRestId(item.attachments[i].id);
+
+        // REST call to get token for ContentBytess
+        Office.context.mailbox.getCallbackTokenAsync({ isRest: true }, function (result) {
+            if (result.status === "succeeded") {
+
+                var accessToken = result.value;
+
+                console.debug("accessToken : " + accessToken);
+
+                var saveAttachmentRequest = {
+                    filename: filename,
+                    attachmentId: attachmentRestId,
+                    messageId: getItemRestId(),
+                    outlookToken: accessToken,
+                    outlookRestUrl: Office.context.mailbox.restUrl,
+                }
+
+                // Controller call to save attachment to oneDrive
+                $.ajax({
+                    url: "/files/saveattachmentonedrive",
+                    type: "POST",
+                    data: JSON.stringify(saveAttachmentRequest),
+                    contentType: "application/json; charset=utf-8"
+                })
+                    .done(function (result) {
+
+                        console.debug("Success: " + result);
+
+                    })
+                    .fail(function (result) {
+                        app.showNotification("Cannot get data from MS Graph: " + result.toString());
+                    });
+
+
+
+            } else {
+                // Handle the error.
+            }
+        });
+
+
+
     }
+
+
 }

@@ -224,6 +224,8 @@
     <Compile Include="Helpers\GraphApiHelper.cs" />
     <Compile Include="Models\AddInContext.cs" />
     <Compile Include="Models\AuthState.cs" />
+    <Compile Include="Models\OutlookAttachment.cs" />
+    <Compile Include="Models\SaveAttachmentRequest.cs" />
     <Compile Include="Models\SessionToken.cs" />
     <Compile Include="Models\MSGraphModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
