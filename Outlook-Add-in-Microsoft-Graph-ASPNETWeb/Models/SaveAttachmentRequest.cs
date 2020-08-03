@@ -7,8 +7,8 @@ namespace OutlookAddinMicrosoftGraphASPNET.Models
 {
     public class SaveAttachmentRequest
     {
-        public string filename { get; set; }
-        public string attachmentId { get; set; }
+        public string[] filenames { get; set; }
+        public string[] attachmentIds { get; set; }
         public string messageId { get; set; }
 
         public string outlookToken { get; set; }
@@ -17,11 +17,10 @@ namespace OutlookAddinMicrosoftGraphASPNET.Models
 
         public bool IsValid()
         {
-            return attachmentId != null &&
+            return attachmentIds != null && filenames != null &&
                 !string.IsNullOrEmpty(messageId) &&
                 !string.IsNullOrEmpty(outlookToken) &&
-                !string.IsNullOrEmpty(outlookRestUrl) &&
-                !string.IsNullOrEmpty(filename);
+                !string.IsNullOrEmpty(outlookRestUrl);
         }
 
     }

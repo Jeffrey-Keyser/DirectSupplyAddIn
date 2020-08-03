@@ -87,6 +87,39 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 
         }
 
+        public static async Task<bool> deleteEmailAttachments(string accessToken, string [] attachmentIds, string emailId)
+        {
+
+            var graphClient = new GraphServiceClient(
+                new DelegateAuthenticationProvider(
+                    async (requestMessage) =>
+                    {
+                        requestMessage.Headers.Authorization =
+                            new AuthenticationHeaderValue("Bearer", accessToken);
+                    }));
+
+
+            foreach (string attachmentId in attachmentIds)
+            {
+                try
+                {
+                    await graphClient.Me.Messages[emailId]
+                        .Attachments[attachmentId]
+                        .Request()
+                        .DeleteAsync();
+                        
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.WriteLine(ex.ToString());
+                    return false;
+                }
+            }
+
+            return true;
+
+        }
+
 
 
 

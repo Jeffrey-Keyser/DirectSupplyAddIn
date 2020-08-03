@@ -298,59 +298,83 @@ function getConversationWithId() {
 }
 
 
+
 function saveAttachmentsOneDrive() {
 
 
     var item = Office.context.mailbox.item;
-
+    var attachmentIds = [];
+    var filenames = [];
     // For each attachment
-    for (var i = 0; i < item.attachments.length; i++)
-    {
-        var filename = item.attachments[i].name;
+    for (var i = 0; i < item.attachments.length; i++) {
+
         var attachmentRestId = getAttachmentRestId(item.attachments[i].id);
 
-        // REST call to get token for ContentBytess
-        Office.context.mailbox.getCallbackTokenAsync({ isRest: true }, function (result) {
-            if (result.status === "succeeded") {
 
-                var accessToken = result.value;
+        filenames.push(item.attachments[i].name);
+        attachmentIds.push(attachmentRestId);
+    }
 
-                console.debug("accessToken : " + accessToken);
+    // REST call to get token for ContentBytess
+    Office.context.mailbox.getCallbackTokenAsync({ isRest: true }, function (result) {
+        if (result.status === "succeeded") {
 
-                var saveAttachmentRequest = {
-                    filename: filename,
-                    attachmentId: attachmentRestId,
-                    messageId: getItemRestId(),
-                    outlookToken: accessToken,
-                    outlookRestUrl: Office.context.mailbox.restUrl,
-                }
+            var accessToken = result.value;
 
-                // Controller call to save attachment to oneDrive
-                $.ajax({
-                    url: "/files/saveattachmentonedrive",
-                    type: "POST",
-                    data: JSON.stringify(saveAttachmentRequest),
-                    contentType: "application/json; charset=utf-8"
-                })
-                    .done(function (result) {
+            console.debug("accessToken : " + accessToken);
 
-                        console.debug("Success: " + result);
-
-                    })
-                    .fail(function (result) {
-                        app.showNotification("Cannot get data from MS Graph: " + result.toString());
-                    });
-
-
-
-            } else {
-                // Handle the error.
+            var saveAttachmentRequest = {
+                filenames: filenames,
+                attachmentIds: attachmentIds,
+                messageId: getItemRestId(),
+                outlookToken: accessToken,
+                outlookRestUrl: Office.context.mailbox.restUrl,
             }
-        });
+
+            // Controller call to save attachment to oneDrive
+            $.ajax({
+                url: "/files/saveattachmentonedrive",
+                type: "POST",
+                data: JSON.stringify(saveAttachmentRequest),
+                contentType: "application/json; charset=utf-8"
+            })
+                .done(function (result) {
+
+                    console.debug("Successful save: " + result);
+
+
+                    // Delete the local attachments
+                    $.ajax({
+                        url: "/files/deleteemailattachments",
+                        type: "POST",
+                        data: { attachmentIds: attachmentIds, emailId: getItemRestId() },
+                    })
+                        .done(function (result) {
+
+                            console.debug("Success: " + result);
+
+                        })
+                        .fail(function (result) {
+                            app.showNotification("Cannot get data from MS Graph: " + result.toString());
+                        });
+
+
+
+
+                })
+                .fail(function (result) {
+                    app.showNotification("Cannot get data from MS Graph: " + result.toString());
+                });
+
+
+
+        } else {
+            // Handle the error.
+        }
+    });
 
 
 
     }
 
 
-}

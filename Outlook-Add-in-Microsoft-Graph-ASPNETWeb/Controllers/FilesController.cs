@@ -15,6 +15,7 @@ using System.IdentityModel;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 {
@@ -81,38 +82,45 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                 string baseAttachmentUri = request.outlookRestUrl;
                 if (!baseAttachmentUri.EndsWith("/"))
                     baseAttachmentUri += "/";
-                baseAttachmentUri += "v2.0/me/messages/" + request.messageId + "/attachments/" + request.attachmentId;
+                baseAttachmentUri += "v2.0/me/messages/" + request.messageId + "/attachments/";
 
-                var getAttachmentReq = new HttpRequestMessage(HttpMethod.Get, baseAttachmentUri);
-
-                // Headers
-                getAttachmentReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.outlookToken);
-                getAttachmentReq.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                var result = await client.SendAsync(getAttachmentReq);
-                string json = await result.Content.ReadAsStringAsync();
-                OutlookAttachment attachment = JsonConvert.DeserializeObject<OutlookAttachment>(json);
-
-                // For files, build a stream directly from ContentBytes
-                if (attachment.Size < (4 * 1024 * 1024))
+                var i = 0;
+                foreach (string attachmentId in request.attachmentIds)
                 {
-                    MemoryStream fileStream = new MemoryStream(Convert.FromBase64String(attachment.ContentBytes));
+
+                    var getAttachmentReq = new HttpRequestMessage(HttpMethod.Get, baseAttachmentUri + attachmentId);
+
+                    // Headers
+                    getAttachmentReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.outlookToken);
+                    getAttachmentReq.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var result = await client.SendAsync(getAttachmentReq);
+                    string json = await result.Content.ReadAsStringAsync();
+                    OutlookAttachment attachment = JsonConvert.DeserializeObject<OutlookAttachment>(json);
+
+                    // For files, build a stream directly from ContentBytes
+                    if (attachment.Size < (4 * 1024 * 1024))
+                    {
+                        MemoryStream fileStream = new MemoryStream(Convert.FromBase64String(attachment.ContentBytes));
 
 
-                    // Get access token
-                    var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
+                        // Get access token
+                        var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
 
-                    var attachments = await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, MakeFileNameValid(request.filename), fileStream);
+                        var attachments = await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, MakeFileNameValid(request.filenames[i++]), fileStream);
 
-                    return Json(attachments, JsonRequestBehavior.AllowGet);
+                  //      return Json(attachments, JsonRequestBehavior.AllowGet);
 
+                    }
+                    else
+                    {
+                        // TODO: Implement functionality to support > 4 MB files
+
+                        return null;
+                    }
                 }
-                else
-                {
-                    // TODO: Implement functionality to support > 4 MB files
 
-                    return null;
-                }
+                return null;
 
             }
 
@@ -124,5 +132,18 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
             char[] invalidChars = Path.GetInvalidFileNameChars();
             return string.Join("_", originalFileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
         }
+
+        [System.Web.Http.HttpPost]
+        public async Task<dynamic> deleteEmailAttachments(string[] attachmentIds, string emailId)
+        {
+            // Get access token
+            var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
+
+            var messages = await GraphApiHelper.deleteEmailAttachments(token.AccessToken, attachmentIds, emailId);
+
+            return Json(messages, JsonRequestBehavior.AllowGet);
+
+        }
+
     }
 }
