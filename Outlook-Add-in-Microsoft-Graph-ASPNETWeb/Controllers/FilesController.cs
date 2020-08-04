@@ -109,8 +109,6 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 
                         var attachments = await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, MakeFileNameValid(request.filenames[i++]), fileStream);
 
-                  //      return Json(attachments, JsonRequestBehavior.AllowGet);
-
                     }
                     else
                     {
@@ -132,6 +130,8 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
             char[] invalidChars = Path.GetInvalidFileNameChars();
             return string.Join("_", originalFileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
         }
+
+
 
         [System.Web.Http.HttpPost]
         public async Task<dynamic> deleteEmailAttachments(string[] attachmentIds, string emailId)

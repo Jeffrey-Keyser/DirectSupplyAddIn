@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 {
@@ -41,11 +42,28 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                             new AuthenticationHeaderValue("Bearer", accessToken);
                     }));
 
+            string filterString = $"conversationId eq '{conversationId}'";
+
             try
             {
 
                var messages = await graphClient.Me.Messages.Request()
+                    .Filter(filterString)
                     .GetAsync();
+
+                // Delete all older emails in convo
+                // Should be sorted already based on testing
+                int i = 0;
+                foreach ( var email in messages.CurrentPage)
+                {
+                    if (i < (messages.Count - 1))
+                    {
+                        await graphClient.Me.Messages[email.Id]
+                            .Request()
+                            .DeleteAsync();
+                    }
+                    i++;
+                }
 
                 return messages;
             }
@@ -87,6 +105,11 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 
         }
 
+
+        /// <summary>
+        /// Deletes attachments located on the selected email
+        /// </summary>
+        /// <returns> Returns true if attachments were deleted, false otherwise </returns>
         public static async Task<bool> deleteEmailAttachments(string accessToken, string [] attachmentIds, string emailId)
         {
 
@@ -103,10 +126,34 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
             {
                 try
                 {
+                    // Delete from email
                     await graphClient.Me.Messages[emailId]
                         .Attachments[attachmentId]
                         .Request()
                         .DeleteAsync();
+
+
+                    // Get mailfolder Id
+                    /*  Gives ErrorItemNotFound.  Attachment preview is still shown in inbox.. Can download and such
+                    var mailFolders = await graphClient.Me.MailFolders.Request()
+                        .GetAsync();
+
+                    string inboxId = null;
+
+                    foreach ( var item in mailFolders.CurrentPage)
+                    {
+                        if (item.DisplayName == "Inbox")
+                            inboxId = item.Id;  
+                    }
+
+
+                    // Delete from inbox folder
+                    await graphClient.Me.MailFolders[inboxId]
+                        .Messages[emailId]
+                        .Attachments[attachmentId]
+                        .Request()
+                        .DeleteAsync();
+                    */
                         
                 }
                 catch (Exception ex)

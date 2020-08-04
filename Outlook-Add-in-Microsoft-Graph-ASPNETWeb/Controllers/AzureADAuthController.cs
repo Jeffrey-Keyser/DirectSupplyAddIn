@@ -94,21 +94,6 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 
                 var authResult = await authResultBuilder.ExecuteAsync();
 
-                /* Start ADD */
-            /*    var graphClient = new GraphServiceClient(
-                    new DelegateAuthenticationProvider(
-                        async (requestMessage) =>
-                        {
-                            requestMessage.Headers.Authorization =
-                                new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
-                        }));
-                var user = await graphClient.Me.Messages.Request()
-                    .Select("sender,subject")
-                    .GetAsync(); 
-             */
-
-
-                /* End ADD */
                 await SaveAuthToken(authState, authResult);
                 authState.authStatus = "success";
             }

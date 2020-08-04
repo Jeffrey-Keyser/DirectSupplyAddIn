@@ -45,6 +45,7 @@ function getFileNamesFromGraph() {
     });
 }
 
+/*
 function writeFileNamesToMessage(graphData) {
 
     // Office.Promise is an alias of OfficeExtension.Promise. Only the alias
@@ -99,7 +100,7 @@ function writeFileNamesToMessage(graphData) {
             reject(Error("Unable to add filenames to document. " + error));
         }
     });
-}
+} */
 
 function createHtmlContent(data) {
 
@@ -265,6 +266,8 @@ function getConversationWithId() {
                 var conversationId = JSON.stringify(item["ConversationId"]);
                 console.debug("Conversation ID : " + conversationId);
 
+                // Get rid of leading / ending double quotes
+                conversationId = conversationId.replace(/['"]+/g, '');
 
                 // Controller call does a GRAPH API call.
                 $.ajax({
@@ -353,12 +356,14 @@ function saveAttachmentsOneDrive() {
 
                             console.debug("Success: " + result);
 
+                            // TODO: Display results
+                            $("#instructionsContainer").hide();
+                            $("#finishedContainer").show();
+
                         })
                         .fail(function (result) {
                             app.showNotification("Cannot get data from MS Graph: " + result.toString());
                         });
-
-
 
 
                 })
