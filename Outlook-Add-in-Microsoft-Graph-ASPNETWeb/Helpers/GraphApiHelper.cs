@@ -51,12 +51,30 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                     .Filter(filterString)
                     .GetAsync();
 
+                var myEmail = await graphClient.Me.Request()
+                    .GetAsync();
+
+                // Find the latest reply from another source.
+                // Prevents deletion of email chain
+                int latestReplyIndex = 0;
+                int currIndex = 0;
+                foreach ( var email in messages.CurrentPage)
+                {
+                    // If not equal to my email, set as last index
+                    if (email.Sender.EmailAddress.Address != myEmail.Mail)
+                    {
+                        latestReplyIndex = currIndex;
+                    }
+                    currIndex++;
+                }
+
+
                 // Delete all older emails in convo
                 // Should be sorted already based on testing
                 int i = 0;
                 foreach ( var email in messages.CurrentPage)
                 {
-                    if (i < (messages.Count - 1))
+                    if (i < latestReplyIndex)
                     {
                         await graphClient.Me.Messages[email.Id]
                             .Request()
@@ -171,7 +189,6 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 
 
     }
-
 
 }
 
