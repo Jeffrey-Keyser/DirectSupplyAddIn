@@ -237,9 +237,6 @@
     <Content Include="Content\directsupplylogo64x64.png" />
     <Content Include="Content\directsupplylogo80x80.png" />
     <Content Include="Content\OfficeThemes.css" />
-    <Content Include="Content\Onedrive_Charts_icon_16x16px.png" />
-    <Content Include="Content\Onedrive_Charts_icon_32x32px.png" />
-    <Content Include="Content\Onedrive_Charts_icon_80x80px.png" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="JSLintNet.json" />

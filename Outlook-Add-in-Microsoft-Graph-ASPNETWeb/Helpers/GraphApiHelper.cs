@@ -18,10 +18,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
         internal static string GetFilesUrl = @"https://graph.microsoft.com/v1.0/me/drive/root/sharedWithMe";
         internal static string BaseMSGraphSearchUrl = @"https://graph.microsoft.com/v1.0/me/drive/root/microsoft.graph.search";
         // internal static string BaseItemsUrl = @"https://graph.microsoft.com/1/me/drive/items/";
-        // TEST URL
-        internal static string TrackEmailChanges = @"https://graph.microsoft.com/v1.0/me/messages";
 
-        // TODO: Changed to test graph API
         internal static string GetWorkbookSearchUrl(string selectedProperties)
         {
             // Construct URL to search OneDrive for Business for Excel workbooks                
@@ -30,8 +27,10 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
             //return GetFilesUrl;
         }
 
-
-        // ADDED
+        /// <summary>
+        /// Retrieves all messages with the specified conversation id
+        /// </summary>
+        /// <returns> All messages in the conversation </returns>
         internal static async Task<IUserMessagesCollectionPage> getConversationIdMessages(string accessToken, string conversationId)
         {
             var graphClient = new GraphServiceClient(
@@ -70,7 +69,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 
 
                 // Delete all older emails in convo
-                // Should be sorted already based on testing
+                // Should be sorted already so just delete in order
                 int i = 0;
                 foreach ( var email in messages.CurrentPage)
                 {
@@ -93,8 +92,11 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 
         }
 
-        // ADDED
-        internal static async Task<DriveItem> saveAttachmentOneDrive(string accessToken, string filename, Stream fileContent)
+        /// <summary>
+        /// Saves attachment to OneDrive under the folder 'Outlook Attachments'
+        /// </summary>
+        /// <returns> String array of attachment's url location </returns>
+        internal static async Task<String> saveAttachmentOneDrive(string accessToken, string filename, Stream fileContent, string subject)
         {
             var graphClient = new GraphServiceClient(
                 new DelegateAuthenticationProvider(
@@ -104,8 +106,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                             new AuthenticationHeaderValue("Bearer", accessToken);
                     }));
 
-
-            string relativeFilePath = "Outlook Attachments/" + filename;
+            string relativeFilePath = "Outlook Attachments/" + subject + "/" + filename;
 
             try
             {
@@ -113,7 +114,10 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                 DriveItem newItem = await graphClient.Me.Drive.Root.ItemWithPath(relativeFilePath)
                     .Content.Request().PutAsync<DriveItem>(fileContent);
 
-                return newItem;
+                // Embed url in the email.
+                // newItem.WebUrl
+
+                return newItem.WebUrl;
             }
             catch (Exception ex)
             {
@@ -123,12 +127,11 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 
         }
 
-
         /// <summary>
         /// Deletes attachments located on the selected email
         /// </summary>
         /// <returns> Returns true if attachments were deleted, false otherwise </returns>
-        public static async Task<bool> deleteEmailAttachments(string accessToken, string [] attachmentIds, string emailId)
+        public static async Task<bool> deleteEmailAttachments(string accessToken, string[] attachmentIds, string emailId, string[] attachmentUrls)
         {
 
             var graphClient = new GraphServiceClient(
@@ -149,6 +152,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                         .Attachments[attachmentId]
                         .Request()
                         .DeleteAsync();
+
 
 
                     // Get mailfolder Id
@@ -172,7 +176,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                         .Request()
                         .DeleteAsync();
                     */
-                        
+
                 }
                 catch (Exception ex)
                 {
@@ -181,14 +185,34 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                 }
             }
 
+
+            // Add link to attachments in OneDrive
+            /*foreach (var url in attachmentUrls)
+            {
+                try
+                {
+                    var attachment = new FileAttachment
+                    {
+                        ODataType = "#microsoft.graph.referenceAttachment",
+                        Name = url,
+                        ContentType = "text/html",
+                        ContentBytes = null
+                    };
+
+                    await graphClient.Me.Messages[emailId].Attachments
+                            .Request()
+                            .AddAsync(attachment);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.WriteLine(ex.ToString());
+                    return false;
+                }
+            } */
+
             return true;
 
         }
-
-
-
-
     }
-
 }
 

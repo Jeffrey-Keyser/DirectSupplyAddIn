@@ -18,10 +18,10 @@
         <p class="ms-font-l ms-fontColor-themePrimary indentFromPaneEdge centeredText"><b>See Commands Below - Check logs after press</b></p>
 
         <p align="center">
-            <button id="getConversationWithId" class="ms-Button ms-Button--primary"><span class="ms-Button-label"> Get conversation messages </span></button>
+            <button id="getConversationWithId" class="ms-Button ms-Button--primary"><span class="ms-Button-label"> Cleanup conversation messages </span></button>
         </p>
         <p align="center">
-            <button id="saveAttachmentsOneDrive" class="ms-Button ms-Button--primary"><span class="ms-Button-label"> Save attachments to oneDrive </span></button>
+            <button id="saveAttachmentsOneDrive" class="ms-Button ms-Button--primary"><span class="ms-Button-label"> Save attachments to OneDrive </span></button>
         </p>
         <p align="center">
             <button id="deleteCurrentEmail" class="ms-Button ms-Button--primary"><span class="ms-Button-label"> Delete the current email </span></button>
@@ -32,19 +32,19 @@
     </div>
 
     <div id="waitContainer" style="display:none">
-        <p class="ms-font-l ms-fontColor-themePrimary indentFromPaneEdge centeredText">We're getting the data for you.</p>
+        <p class="ms-font-l ms-fontColor-themePrimary indentFromPaneEdge centeredText">We're saving the files for you.</p>
         <div class="ms-Spinner"></div>
     </div>
 
     <div id="finishedContainer" style="display:none">
-        <p class="ms-font-l ms-fontColor-themePrimary indentFromPaneEdge centeredText">The following files have been saved to OneDrive!</p>
+        <p class="ms-font-l ms-fontWeight-semibold ms-fontColor-themeDarker indentFromPaneEdge">The following files have been saved to OneDrive!</p>
     </div>
 
 
     @* Custom CSS "onedrivefilesfooter" class is fixed to the bottom of the page so it is visible even if the task pane is scrolled. *@
     <footer id="footer" class="onedrivefilesfooter ms-bgColor-neutralLight">
         <div class="container">
-
+           
 
             @* Button to sign out from Office 365 *@
             <p align="center">
@@ -54,4 +54,3 @@
     </footer>
 
 <script src="~/Scripts/Document.js" type="text/javascript"></script>
-

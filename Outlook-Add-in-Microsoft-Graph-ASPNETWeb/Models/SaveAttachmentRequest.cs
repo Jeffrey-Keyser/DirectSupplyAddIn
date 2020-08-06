@@ -15,6 +15,9 @@ namespace OutlookAddinMicrosoftGraphASPNET.Models
 
         public string outlookRestUrl { get; set; }
 
+        // Don't necessarily need this, not in IsValid()
+        public string subject { get; set; }
+
         public bool IsValid()
         {
             return attachmentIds != null && filenames != null &&

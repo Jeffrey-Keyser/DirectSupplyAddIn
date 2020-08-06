@@ -64,12 +64,13 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
         }
 
         /// <summary>
-        /// Save an attachment to OneDrive
+        /// Saves all attachments found on an email to OneDrive
         /// </summary>
-        /// <returns> Attachment that was successfully saved </returns>
+        /// <returns> Urls of the saved attachments </returns>
         [System.Web.Http.HttpPost]
-        public async Task<JsonResult> SaveAttachmentOneDrive([FromBody]SaveAttachmentRequest request)
+        public async Task<String[]> SaveAttachmentOneDrive([FromBody]SaveAttachmentRequest request)
         {
+            string[] attachmentsUrl = new string[request.attachmentIds.Length]; 
 
             if (request == null || !request.IsValid())
             {
@@ -107,8 +108,9 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                         // Get access token
                         var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
 
-                        var attachments = await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, MakeFileNameValid(request.filenames[i++]), fileStream);
-
+                        attachmentsUrl[i] =  await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, MakeFileNameValid(request.filenames[i]), fileStream, request.subject);
+                        
+                        i++;
                     }
                     else
                     {
@@ -118,30 +120,32 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                     }
                 }
 
-                return null;
+                return attachmentsUrl;
 
             }
 
         }
 
-        // Helper function that formats filenames for onedrive upload
+        // Helper function that formats filenames for OneDrive upload
         private string MakeFileNameValid(string originalFileName)
         {
             char[] invalidChars = Path.GetInvalidFileNameChars();
             return string.Join("_", originalFileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
         }
 
-
-
+        /// <summary>
+        /// Deletes all attachments on current email
+        /// </summary>
+        /// <returns> String array of deleted attachments </returns>
         [System.Web.Http.HttpPost]
-        public async Task<dynamic> deleteEmailAttachments(string[] attachmentIds, string emailId)
+        public async Task<dynamic> deleteEmailAttachments(string[] attachmentIds, string emailId, string[] attachmentUrls)
         {
             // Get access token
             var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
 
-            var messages = await GraphApiHelper.deleteEmailAttachments(token.AccessToken, attachmentIds, emailId);
+            var attachments = await GraphApiHelper.deleteEmailAttachments(token.AccessToken, attachmentIds, emailId, attachmentUrls);
 
-            return Json(messages, JsonRequestBehavior.AllowGet);
+            return Json(attachments, JsonRequestBehavior.AllowGet);
 
         }
 

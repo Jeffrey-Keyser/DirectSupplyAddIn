@@ -102,16 +102,15 @@ function writeFileNamesToMessage(graphData) {
     });
 } */
 
-function createHtmlContent(data) {
-
-    var bodyContent = "<html><head></head><body>";
+function createHtmlContent(data, elementId) {
 
     for (var i = 0; i < data.length; i++) {
-        bodyContent += "<p>" + data[i] + "</p>";
+        var file = document.createElement('p');
+        file.className = 'ms-font-l ms-fontColor-themePrimary indentFromPaneEdge centeredText';
+        file.innerHTML = data[i];
+        document.getElementById(elementId).appendChild(file);
     }
-    bodyContent += "</body></html >";
 
-    return bodyContent;
 }
 
 function createTextContent(data) {
@@ -264,6 +263,8 @@ function getConversationWithId() {
             }).done(function (item) {
 
                 var conversationId = JSON.stringify(item["ConversationId"]);
+
+
                 console.debug("Conversation ID : " + conversationId);
 
                 // Get rid of leading / ending double quotes
@@ -313,7 +314,6 @@ function saveAttachmentsOneDrive() {
 
         var attachmentRestId = getAttachmentRestId(item.attachments[i].id);
 
-
         filenames.push(item.attachments[i].name);
         attachmentIds.push(attachmentRestId);
     }
@@ -325,6 +325,7 @@ function saveAttachmentsOneDrive() {
             var accessToken = result.value;
 
             console.debug("accessToken : " + accessToken);
+            console.debug("subject : " + item.subject);
 
             var saveAttachmentRequest = {
                 filenames: filenames,
@@ -332,6 +333,7 @@ function saveAttachmentsOneDrive() {
                 messageId: getItemRestId(),
                 outlookToken: accessToken,
                 outlookRestUrl: Office.context.mailbox.restUrl,
+                subject: item.subject,
             }
 
             // Controller call to save attachment to oneDrive
@@ -343,22 +345,28 @@ function saveAttachmentsOneDrive() {
             })
                 .done(function (result) {
 
-                    console.debug("Successful save: " + result);
+                    console.debug("Successful save: " + result.toString);
 
 
                     // Delete the local attachments
                     $.ajax({
                         url: "/files/deleteemailattachments",
                         type: "POST",
-                        data: { attachmentIds: attachmentIds, emailId: getItemRestId() },
+                        data: { attachmentIds: attachmentIds, emailId: getItemRestId(), attachmentUrls: result },
                     })
                         .done(function (result) {
 
                             console.debug("Success: " + result);
 
-                            // TODO: Display results
+                            createHtmlContent(filenames, 'finishedContainer');
+
+
+
+                            // Display result for 5 seconds
                             $("#instructionsContainer").hide();
                             $("#finishedContainer").show();
+
+                            setTimeout(showCommands, 5000);
 
                         })
                         .fail(function (result) {
@@ -378,8 +386,12 @@ function saveAttachmentsOneDrive() {
         }
     });
 
+}
 
-
-    }
+// Callback function for timeout
+function showCommands() {
+    $("#finishedContainer").hide();
+    $("#instructionsContainer").show();
+}
 
 
