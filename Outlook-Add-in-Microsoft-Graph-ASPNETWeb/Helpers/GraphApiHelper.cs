@@ -134,6 +134,12 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
         public static async Task<bool> deleteEmailAttachments(string accessToken, string[] attachmentIds, string emailId, string[] attachmentUrls)
         {
 
+            if (attachmentIds == null)
+            {
+                return false;
+            }
+
+
             var graphClient = new GraphServiceClient(
                 new DelegateAuthenticationProvider(
                     async (requestMessage) =>
@@ -213,6 +219,41 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
             return true;
 
         }
+
+
+
+
+        /// <returns> Body of current email </returns>
+        internal static async Task<string> getMessageBody(string accessToken, string emailId)
+        {
+            var graphClient = new GraphServiceClient(
+                new DelegateAuthenticationProvider(
+                    async (requestMessage) =>
+                    {
+                        requestMessage.Headers.Authorization =
+                            new AuthenticationHeaderValue("Bearer", accessToken);
+                    }));
+
+
+            try
+            {
+                // Just get the email body for processing later
+                var email = await graphClient.Me.Messages[emailId]
+                    .Request()
+                    .GetAsync();
+
+                // In HTML
+                return email.Body.Content;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine(ex.ToString());
+                return null;
+            }
+
+        }
+
+
     }
 }
 

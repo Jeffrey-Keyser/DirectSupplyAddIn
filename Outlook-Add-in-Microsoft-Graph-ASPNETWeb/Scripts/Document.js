@@ -345,8 +345,9 @@ function saveAttachmentsOneDrive() {
             })
                 .done(function (result) {
 
-                    console.debug("Successful save: " + result.toString);
+                    console.debug("Successful save: attachmentUrl " + result);
 
+                    var attachmentUrls = result;
 
                     // Delete the local attachments
                     $.ajax({
@@ -358,9 +359,10 @@ function saveAttachmentsOneDrive() {
 
                             console.debug("Success: " + result);
 
+                            // Embed link to OneDrive Location
+                            embedAttachmentLinks(attachmentUrls, getItemRestId(), accessToken);
+
                             createHtmlContent(filenames, 'finishedContainer');
-
-
 
                             // Display result for 5 seconds
                             $("#instructionsContainer").hide();
@@ -394,4 +396,43 @@ function showCommands() {
     $("#instructionsContainer").show();
 }
 
+function embedAttachmentLinks(attachmentsLocation, emailId, accessToken) {
 
+    $.ajax({
+        url: "/email/addattachmentstobody",
+        type: "GET",
+        data: { attachmentsLocation: attachmentsLocation, emailId: emailId },
+    })
+        .done(function (result) {
+
+            console.debug("Success embed : " + result.toString());
+
+
+            var getMessageUrl = Office.context.mailbox.restUrl +
+                '/v2.0/me/messages/' + emailId;
+
+            var message = {
+                Body: {
+                    "ContentType": '1',
+                    "Content": result.toString(),
+                }
+            };
+
+            $.ajax({
+                url: getMessageUrl,
+                contentType: 'application/json',
+                type: 'PATCH',
+                headers: { 'Authorization': 'Bearer ' + accessToken },
+                data: JSON.stringify(message),
+            }).done(function (item) {
+
+                console.debug("Success, email is updated");
+
+            })
+                .fail(function (xhr, textStatus, errorThrown) {
+                    app.showNotification("Error: Couldn't update email with new body: " + textStatus);
+                    var jsonResponse = JSON.parse(xhr.responseText);
+                    console.debug(jsonResponse);
+                });
+        })
+}

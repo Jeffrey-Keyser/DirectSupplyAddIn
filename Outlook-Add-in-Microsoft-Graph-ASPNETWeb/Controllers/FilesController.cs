@@ -68,14 +68,15 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
         /// </summary>
         /// <returns> Urls of the saved attachments </returns>
         [System.Web.Http.HttpPost]
-        public async Task<String[]> SaveAttachmentOneDrive([FromBody]SaveAttachmentRequest request)
+        public async Task<string> SaveAttachmentOneDrive([FromBody]SaveAttachmentRequest request)
         {
-            string[] attachmentsUrl = new string[request.attachmentIds.Length]; 
 
-            if (request == null || !request.IsValid())
+            if (request == null || !request.IsValid() || request.attachmentIds.Length == 0)
             {
                 return null;
             }
+
+            string attachmentsUrl = null; 
 
             using (var client = new HttpClient())
             {
@@ -108,8 +109,13 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                         // Get access token
                         var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
 
-                        attachmentsUrl[i] =  await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, MakeFileNameValid(request.filenames[i]), fileStream, request.subject);
-                        
+                        attachmentsUrl =  await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, MakeFileNameValid(request.filenames[i]), fileStream, request.subject);
+
+                        // Format 
+                        string delete = "/" + request.filenames[i];
+                        attachmentsUrl = attachmentsUrl.Replace(delete, "");
+
+
                         i++;
                     }
                     else
@@ -119,6 +125,8 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                         return null;
                     }
                 }
+
+               
 
                 return attachmentsUrl;
 
