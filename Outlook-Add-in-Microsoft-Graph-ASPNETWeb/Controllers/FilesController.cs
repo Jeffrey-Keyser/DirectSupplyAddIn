@@ -48,20 +48,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
             return View();
         }
 
-        /// <summary>
-        /// Gets emails with conversation id 
-        /// </summary>
-        /// <returns>Emails with the specific conversation id.</returns>
-        public async Task<JsonResult> ConversationMessages(string convoId)
-        {
 
-            // Get access token
-            var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
-
-            var messages = await GraphApiHelper.getConversationIdMessages(token.AccessToken, convoId);
-
-            return Json(messages, JsonRequestBehavior.AllowGet);
-        }
 
         /// <summary>
         /// Saves all attachments found on an email to OneDrive
@@ -106,10 +93,10 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                         MemoryStream fileStream = new MemoryStream(Convert.FromBase64String(attachment.ContentBytes));
 
 
-                        // Get access token
+                        // Get access token from SQL database
                         var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
 
-                        attachmentsUrl =  await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, MakeFileNameValid(request.filenames[i]), fileStream, request.subject);
+                        attachmentsUrl =  await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, Format.MakeFileNameValid(request.filenames[i]), fileStream, request.subject);
 
                         // Format 
                         string delete = "/" + request.filenames[i];
@@ -124,9 +111,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 
                         return null;
                     }
-                }
-
-               
+                }  
 
                 return attachmentsUrl;
 
@@ -134,28 +119,6 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 
         }
 
-        // Helper function that formats filenames for OneDrive upload
-        private string MakeFileNameValid(string originalFileName)
-        {
-            char[] invalidChars = Path.GetInvalidFileNameChars();
-            return string.Join("_", originalFileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
-        }
-
-        /// <summary>
-        /// Deletes all attachments on current email
-        /// </summary>
-        /// <returns> String array of deleted attachments </returns>
-        [System.Web.Http.HttpPost]
-        public async Task<dynamic> deleteEmailAttachments(string[] attachmentIds, string emailId, string[] attachmentUrls)
-        {
-            // Get access token
-            var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
-
-            var attachments = await GraphApiHelper.deleteEmailAttachments(token.AccessToken, attachmentIds, emailId, attachmentUrls);
-
-            return Json(attachments, JsonRequestBehavior.AllowGet);
-
-        }
 
     }
 }

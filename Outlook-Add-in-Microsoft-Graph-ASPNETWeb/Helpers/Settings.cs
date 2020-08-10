@@ -12,7 +12,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
     {
         public static string AzureADClientId = ConfigurationManager.AppSettings["AAD:ClientID"];
         public static string AzureADClientSecret = ConfigurationManager.AppSettings["AAD:ClientSecret"];
-        public static string AzureADTenantId = ConfigurationManager.AppSettings["AAD:O365TenantID"]; // TODO: ADDED
+        public static string AzureADTenantId = ConfigurationManager.AppSettings["AAD:O365TenantID"];
 
         public static string AzureADAuthority = @"https://login.microsoftonline.com/" + ConfigurationManager.AppSettings["AAD:O365TenantID"] + "/oauth2/v2.0";
         public static string AzureADLogoutAuthority = @"https://login.microsoftonline.com/common/oauth2/logout?post_logout_redirect_uri=";

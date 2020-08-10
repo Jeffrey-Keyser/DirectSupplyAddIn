@@ -14,10 +14,30 @@ Office.initialize = function () {
         $("#getConversationWithId").click(getConversationWithId);
         $("#saveAttachmentsOneDrive").click(saveAttachmentsOneDrive);
         $("#deleteCurrentEmail").click(deleteCurrentEmail);
-     //   $("#downloadAttachmentLocal").click(downloadAttachmentsLocally);
 
     });
 };
+
+// Methodize controller call
+function controllerCall(controller, controllerMethod, ajaxType, data, cb) {
+
+    var controllerUrl = '/' + controller + '/' + controllerMethod;
+
+    $.ajax({
+        url: controllerUrl,
+        type: ajaxType,
+        data: data,
+    })
+        .done(function (result) {
+            console.debug("Controller call success! Returned " + result);
+            cb(result);
+    })
+    .fail(function (result) {
+        app.showNotification("Error during controller call: " + result.toString());
+    });
+
+
+}
 
 function getFileNamesFromGraph() {
 
@@ -44,63 +64,6 @@ function getFileNamesFromGraph() {
             app.showNotification("Cannot get data from MS Graph: " + result.toString());
     });
 }
-
-/*
-function writeFileNamesToMessage(graphData) {
-
-    // Office.Promise is an alias of OfficeExtension.Promise. Only the alias
-    // can be used in an Outlook add-in.
-    return new Office.Promise(function (resolve, reject) {
-        try {
-            Office.context.mailbox.item.body.getTypeAsync(
-                function (result) {
-                    if (result.status === Office.AsyncResultStatus.Failed) {
-                        app.showNotification(result.error.message);
-                    }
-                    else {
-                        // Successfully got the type of item body.
-                        if (result.value === Office.MailboxEnums.BodyType.Html) {
-
-                            // Body is of type HTML.
-                            var htmlContent = createHtmlContent(graphData);
-
-                            Office.context.mailbox.item.body.setSelectedDataAsync(
-                                htmlContent, { coercionType: Office.CoercionType.Html },
-                                function (asyncResult) {
-                                    if (asyncResult.status ===
-                                        Office.AsyncResultStatus.Failed) {
-                                        console.log(asyncResult.error.message);
-                                    }
-                                    else {
-                                        console.log("Successfully set HTML data in item body.");
-                                    }
-                                });
-                        }
-                        else {
-                            // Body is of type text. 
-                            var textContent = createTextContent(graphData);
-
-                            Office.context.mailbox.item.body.setSelectedDataAsync(
-                                textContent, { coercionType: Office.CoercionType.Text },
-                                function (asyncResult) {
-                                    if (asyncResult.status ===
-                                        Office.AsyncResultStatus.Failed) {
-                                        console.log(asyncResult.error.message);
-                                    }
-                                    else {
-                                        console.log("Successfully set text data in item body.");
-                                    }
-                                });
-                        }
-                    }
-                });
-            resolve();
-        }
-        catch (error) {
-            reject(Error("Unable to add filenames to document. " + error));
-        }
-    });
-} */
 
 function createHtmlContent(data, elementId) {
 
@@ -270,22 +233,13 @@ function getConversationWithId() {
                 // Get rid of leading / ending double quotes
                 conversationId = conversationId.replace(/['"]+/g, '');
 
-                // Controller call does a GRAPH API call.
-                $.ajax({
-                    url: "/files/conversationmessages",
-                    type: "GET",
-                    data: { convoId: conversationId },
-                })
-                    .done(function (result) {
+                var data = {
+                    convoId: conversationId
+                }
 
-                        console.debug("Success: " + result);
-
-                    })
-                    .fail(function (result) {
-                        app.showNotification("Cannot get data from MS Graph: " + result.toString());
-                    });
-
-
+                controllerCall("email", "conversationmessages", "GET", data, function (result) {
+                    console.debug("callback called");
+                });
 
             }).fail(function (error, textStatus, errorThrown) {
                 console.debug("Error after sending ajax call " + textStatus + " Error thrown: " + errorThrown);
@@ -304,7 +258,6 @@ function getConversationWithId() {
 
 
 function saveAttachmentsOneDrive() {
-
 
     var item = Office.context.mailbox.item;
     var attachmentIds = [];
@@ -336,52 +289,39 @@ function saveAttachmentsOneDrive() {
                 subject: item.subject,
             }
 
-            // Controller call to save attachment to oneDrive
-            $.ajax({
-                url: "/files/saveattachmentonedrive",
-                type: "POST",
-                data: JSON.stringify(saveAttachmentRequest),
-                contentType: "application/json; charset=utf-8"
-            })
-                .done(function (result) {
-
-                    console.debug("Successful save: attachmentUrl " + result);
-
-                    var attachmentUrls = result;
-
-                    // Delete the local attachments
-                    $.ajax({
-                        url: "/files/deleteemailattachments",
-                        type: "POST",
-                        data: { attachmentIds: attachmentIds, emailId: getItemRestId(), attachmentUrls: result },
-                    })
-                        .done(function (result) {
-
-                            console.debug("Success: " + result);
-
-                            // Embed link to OneDrive Location
-                            embedAttachmentLinks(attachmentUrls, getItemRestId(), accessToken);
-
-                            createHtmlContent(filenames, 'finishedContainer');
-
-                            // Display result for 5 seconds
-                            $("#instructionsContainer").hide();
-                            $("#finishedContainer").show();
-
-                            setTimeout(showCommands, 5000);
-
-                        })
-                        .fail(function (result) {
-                            app.showNotification("Cannot get data from MS Graph: " + result.toString());
-                        });
+            controllerCall("files", "saveattachmentonedrive", "POST", saveAttachmentRequest, function (result) {
 
 
-                })
-                .fail(function (result) {
-                    app.showNotification("Cannot get data from MS Graph: " + result.toString());
+                console.debug("Successful save: attachmentUrl " + result);
+
+                var attachmentUrls = result;
+
+
+                // Delete the local attachments
+                var data = {
+                    attachmentIds: attachmentIds,
+                    emailId: getItemRestId(),
+                    attachmentUrls: result
+                }
+
+
+                controllerCall("email", "deleteemailattachments", "POST", data, function (result) {
+
+                    console.debug("Success: " + result);
+
+                    // Embed link to OneDrive Location
+                    embedAttachmentLinks(attachmentUrls, getItemRestId(), accessToken);
+
+                    createHtmlContent(filenames, 'finishedContainer');
+
+                    // Display result for 5 seconds
+                    $("#instructionsContainer").hide();
+                    $("#finishedContainer").show();
+
+                    setTimeout(showCommands, 5000);
+
                 });
-
-
+            });
 
         } else {
             // Handle the error.
@@ -398,41 +338,46 @@ function showCommands() {
 
 function embedAttachmentLinks(attachmentsLocation, emailId, accessToken) {
 
-    $.ajax({
-        url: "/email/addattachmentstobody",
-        type: "GET",
-        data: { attachmentsLocation: attachmentsLocation, emailId: emailId },
-    })
-        .done(function (result) {
 
-            console.debug("Success embed : " + result.toString());
+    var data = {
+        attachmentsLocation: attachmentsLocation,
+        emailId: emailId
+    }
+
+    controllerCall("email", "addattachmentstobody", "GET", data, function (result) {
+
+        console.debug("Success embed : " + result.toString());
 
 
-            var getMessageUrl = Office.context.mailbox.restUrl +
-                '/v2.0/me/messages/' + emailId;
+        var getMessageUrl = Office.context.mailbox.restUrl +
+            '/v2.0/me/messages/' + emailId;
 
-            var message = {
-                Body: {
-                    "ContentType": '1',
-                    "Content": result.toString(),
-                }
-            };
+        var message = {
+            Body: {
+                "ContentType": '1',
+                "Content": result.toString(),
+            }
+        };
 
-            $.ajax({
-                url: getMessageUrl,
-                contentType: 'application/json',
-                type: 'PATCH',
-                headers: { 'Authorization': 'Bearer ' + accessToken },
-                data: JSON.stringify(message),
-            }).done(function (item) {
+        $.ajax({
+            url: getMessageUrl,
+            contentType: 'application/json',
+            type: 'PATCH',
+            headers: { 'Authorization': 'Bearer ' + accessToken },
+            data: JSON.stringify(message),
+        }).done(function (item) {
 
-                console.debug("Success, email is updated");
+            console.debug("Success, email is updated");
 
-            })
-                .fail(function (xhr, textStatus, errorThrown) {
-                    app.showNotification("Error: Couldn't update email with new body: " + textStatus);
-                    var jsonResponse = JSON.parse(xhr.responseText);
-                    console.debug(jsonResponse);
-                });
         })
+            .fail(function (xhr, textStatus, errorThrown) {
+                app.showNotification("Error: Couldn't update email with new body: " + textStatus);
+                var jsonResponse = JSON.parse(xhr.responseText);
+                console.debug(jsonResponse);
+            });
+
+    });
+
+    
+
 }

@@ -160,28 +160,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                         .DeleteAsync();
 
 
-
-                    // Get mailfolder Id
-                    /*  Gives ErrorItemNotFound.  Attachment preview is still shown in inbox.. Can download and such
-                    var mailFolders = await graphClient.Me.MailFolders.Request()
-                        .GetAsync();
-
-                    string inboxId = null;
-
-                    foreach ( var item in mailFolders.CurrentPage)
-                    {
-                        if (item.DisplayName == "Inbox")
-                            inboxId = item.Id;  
-                    }
-
-
-                    // Delete from inbox folder
-                    await graphClient.Me.MailFolders[inboxId]
-                        .Messages[emailId]
-                        .Attachments[attachmentId]
-                        .Request()
-                        .DeleteAsync();
-                    */
+                    // TODO: Attachment preview deletion? Gave ErrorNotFound
 
                 }
                 catch (Exception ex)
@@ -191,37 +170,9 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                 }
             }
 
-
-            // Add link to attachments in OneDrive
-            /*foreach (var url in attachmentUrls)
-            {
-                try
-                {
-                    var attachment = new FileAttachment
-                    {
-                        ODataType = "#microsoft.graph.referenceAttachment",
-                        Name = url,
-                        ContentType = "text/html",
-                        ContentBytes = null
-                    };
-
-                    await graphClient.Me.Messages[emailId].Attachments
-                            .Request()
-                            .AddAsync(attachment);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Trace.WriteLine(ex.ToString());
-                    return false;
-                }
-            } */
-
             return true;
 
         }
-
-
-
 
         /// <returns> Body of current email </returns>
         internal static async Task<string> getMessageBody(string accessToken, string emailId)
