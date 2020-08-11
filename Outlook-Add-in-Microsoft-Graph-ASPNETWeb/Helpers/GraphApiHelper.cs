@@ -6,6 +6,7 @@ using System.IO;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using System.Windows.Forms;
 
 namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 {
@@ -75,6 +76,13 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                 {
                     if (i < latestReplyIndex)
                     {
+                        // If earlier email has attachments, prompt user to ensure 
+                        if (email.Attachments != null)
+                        {
+                            // TODO: Handle
+                            MessageBox.Show("Attachments will be deleted..");
+                        }
+
                         await graphClient.Me.Messages[email.Id]
                             .Request()
                             .DeleteAsync();

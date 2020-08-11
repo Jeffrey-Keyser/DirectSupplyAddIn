@@ -20,6 +20,8 @@
                 var url = "/azureadauth/login?authState=" + encodeURIComponent(JSON.stringify(authState));
                 showLoginPopup(url);
             });
+
+
         });
     };
 
@@ -60,5 +62,3 @@
         });
     }
 }());
-
-// Copyright (c) Microsoft. All rights reserved. Licensed under the MIT license. See full license in the root of the repo.

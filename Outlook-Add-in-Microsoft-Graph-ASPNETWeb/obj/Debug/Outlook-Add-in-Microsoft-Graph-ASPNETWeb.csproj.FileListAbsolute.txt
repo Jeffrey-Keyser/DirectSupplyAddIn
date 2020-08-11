@@ -462,3 +462,17 @@ C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-AS
 C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\ru\Microsoft.Spatial.resources.dll
 C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\zh-Hans\Microsoft.Spatial.resources.dll
 C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\zh-Hant\Microsoft.Spatial.resources.dll
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.Auth.dll
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.Auth.PlatformServices.dll
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.Core.dll
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.dll
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.Drive.v3.dll
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.PlatformServices.dll
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.pdb
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.xml
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.Auth.pdb
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.Auth.xml
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.Core.pdb
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.Core.xml
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.Drive.v3.pdb
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\Google.Apis.Drive.v3.xml

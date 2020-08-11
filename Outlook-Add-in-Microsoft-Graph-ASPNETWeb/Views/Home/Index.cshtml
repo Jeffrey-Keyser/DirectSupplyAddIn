@@ -5,34 +5,34 @@
 }
 
 @* Welcome message. This view is only seen if the user isn't already signed in. *@
-<div id="connectContainer">
-    <div class="ms-bgColor-neutralLight welcome">
-        <div class="ms-fontSize-xl ms-fontColor-themePrimary">Welcome</div>
-        <div class="ms-font-l"> TODO: Proj Description </div>
-        
+    <div id="connectContainer">
+        <div class="ms-bgColor-neutralLight welcome">
+            <div class="ms-fontSize-xl ms-fontColor-themePrimary">Welcome</div>
+            <div class="ms-font-l"> TODO: Proj Description </div>
+
+        </div>
+        <div class="welcome-body">
+            <p class="ms-font-xs welcome-intro">Currently, this add-in can perform the following tasks:</p>
+
+            <ul class="ms-List ordered-list">
+                <li class="ms-ListItem">
+                    <span class="ms-ListItem-primaryText">1</span>
+                    <span class="ms-ListItem-secondaryText">Connects to OneDrive for Microsoft Graph calls</span>
+                    <div class="clearfix"></div>
+                </li>
+                <li class="ms-ListItem">
+                    <span class="ms-ListItem-primaryText">2</span>
+                    <span class="ms-ListItem-secondaryText"> Saves attachments to OneDrive, deletes from email, and replaces with a link </span>
+                    <div class="clearfix"></div>
+                </li>
+                <li class="ms-ListItem">
+                    <span class="ms-ListItem-primaryText">3</span>
+                    <span class="ms-ListItem-secondaryText"> Cleans up long conversation threads </span>
+                    <div class="clearfix"></div>
+                </li>
+            </ul>
+        </div>
     </div>
-    <div class="welcome-body"> 
-        <p class="ms-font-xs welcome-intro">Currently, this add-in can perform the following tasks:</p>
-       
-        <ul class="ms-List ordered-list">
-            <li class="ms-ListItem">
-                <span class="ms-ListItem-primaryText">1</span>
-                <span class="ms-ListItem-secondaryText">Connects to OneDrive for Microsoft Graph calls</span>
-                <div class="clearfix"></div>
-            </li>
-            <li class="ms-ListItem">
-                <span class="ms-ListItem-primaryText">2</span>
-                <span class="ms-ListItem-secondaryText"> Saves attachments to OneDrive, deletes from email, and replaces with a link </span>
-                <div class="clearfix"></div>
-            </li>
-            <li class="ms-ListItem">
-                <span class="ms-ListItem-primaryText">3</span>
-                <span class="ms-ListItem-secondaryText"> Cleans up long conversation threads </span>
-                <div class="clearfix"></div>
-            </li>
-        </ul>     
-    </div>
-</div>
 
 <div id="waitContainer" style="display:none">
     <div class="ms-Spinner"></div>
@@ -47,7 +47,6 @@
         <p align="center">
             <button id="loginO365PopupButton" class="popupButton ms-Button ms-Button--primary"><span class="ms-Button-label">Connect to Office 365</span></button>
         </p>
-
     </div>
 </footer>
 

@@ -96,12 +96,13 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                         // Get access token from SQL database
                         var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
 
-                        attachmentsUrl =  await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, Format.MakeFileNameValid(request.filenames[i]), fileStream, request.subject);
+                        // TODO: Check if the file already exists
+
+                        attachmentsUrl =  await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, Format.MakeFileNameValid(request.filenames[i]), fileStream, Format.MakeFileNameValid(request.subject));
 
                         // Format 
                         string delete = "/" + request.filenames[i];
                         attachmentsUrl = attachmentsUrl.Replace(delete, "");
-
 
                         i++;
                     }

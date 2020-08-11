@@ -8,15 +8,32 @@ Office.initialize = function () {
     $(document).ready(function () {
         app.initialize();
 
+        // Make add in pinnable
+        Office.context.mailbox.addHandlerAsync(Office.EventType.ItemChanged, itemChanged);
+        UpdateTaskPaneUI(Office.context.mailbox.item);
+
 
       //  $("#getOneDriveFilesButton").click(getFileNamesFromGraph); // Dismissed currently
         $("#logoutO365PopupButton").click(logout);
         $("#getConversationWithId").click(getConversationWithId);
         $("#saveAttachmentsOneDrive").click(saveAttachmentsOneDrive);
         $("#deleteCurrentEmail").click(deleteCurrentEmail);
-
+        $("#loginGooglePopupButton").click(function () {
+            controllerCall("google", "authorize", "GET", "", function () { });
+        });
     });
 };
+
+function itemChanged(eventArgs) {
+    // Update UI based on the new current item
+    UpdateTaskPaneUI(Office.context.mailbox.item);
+}
+
+// Example implementation
+function UpdateTaskPaneUI(item) {
+    // Assuming that item is always a read item (instead of a compose item).
+    if (item != null) console.log(item.subject);
+}
 
 // Methodize controller call
 function controllerCall(controller, controllerMethod, ajaxType, data, cb) {
