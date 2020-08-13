@@ -19,7 +19,51 @@ Office.initialize = function () {
         $("#saveAttachmentsOneDrive").click(saveAttachmentsOneDrive);
         $("#deleteCurrentEmail").click(deleteCurrentEmail);
         $("#loginGooglePopupButton").click(function () {
-            controllerCall("google", "authorize", "GET", "", function () { });
+
+            var item = Office.context.mailbox.item;
+            var attachmentIds = [];
+            var filenames = [];
+            // For each attachment
+            for (var i = 0; i < item.attachments.length; i++) {
+
+                var attachmentRestId = getAttachmentRestId(item.attachments[i].id);
+
+                filenames.push(item.attachments[i].name);
+                attachmentIds.push(attachmentRestId);
+            }
+
+            // REST call to get token for ContentBytess
+            Office.context.mailbox.getCallbackTokenAsync({ isRest: true }, function (result) {
+                if (result.status === "succeeded") {
+
+                    var accessToken = result.value;
+
+                    var saveAttachmentRequest = {
+                        filenames: filenames,
+                        attachmentIds: attachmentIds,
+                        messageId: getItemRestId(),
+                        outlookToken: accessToken,
+                        outlookRestUrl: Office.context.mailbox.restUrl,
+                        subject: item.subject,
+                    }
+
+
+                    controllerCall("google", "authorize", "POST", saveAttachmentRequest, function (result) {
+
+                        console.debug("Google drive call returned");
+
+
+                        var attachmentsLocation = "drive.google.com/drive/u/1/folders/" + result;
+
+                        embedAttachmentLinks(attachmentsLocation, getItemRestId(), accessToken);
+
+                    });
+                }
+                else {
+
+                }
+
+                });
         });
     });
 };

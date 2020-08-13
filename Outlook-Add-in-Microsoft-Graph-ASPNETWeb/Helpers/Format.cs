@@ -42,7 +42,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
         // Gets the Mime type of the specified file
         //</summary>
         // <returns> Mime type </returns>
-        private static string GetMimeType(string fileName)
+        public static string GetMimeType(string fileName)
         {
             string mimeType = "application/unknown";
             string ext = System.IO.Path.GetExtension(fileName).ToLower();

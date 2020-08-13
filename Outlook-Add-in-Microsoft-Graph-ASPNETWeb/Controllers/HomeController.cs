@@ -17,7 +17,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
             var userAuthStateId = Settings.GetUserAuthStateId(ControllerContext.HttpContext);
             if (Data.GetUserSessionToken(userAuthStateId, Settings.AzureADAuthority) != null)
             {
-                // When the user is signed in, go directly to the list of workbooks.
+                // When the user is signed in, go directly to files controller
                 return RedirectToAction("Index", "Files");
             }
 

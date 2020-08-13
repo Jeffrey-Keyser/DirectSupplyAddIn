@@ -101,9 +101,9 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
         }
 
         /// <summary>
-        /// Saves attachment to OneDrive under the folder 'Outlook Attachments'
+        /// Saves attachment to OneDrive under the parent 'Outlook Attachments' and under child 'Email subject' 
         /// </summary>
-        /// <returns> String array of attachment's url location </returns>
+        /// <returns> Attachment's url location </returns>
         internal static async Task<String> saveAttachmentOneDrive(string accessToken, string filename, Stream fileContent, string subject)
         {
             var graphClient = new GraphServiceClient(
