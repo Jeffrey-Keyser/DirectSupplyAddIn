@@ -27,6 +27,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
         public static string GetUserAuthStateId(HttpContextBase ctx)
         {
             string id;
+            string path = "/";
             if (ctx.Request.Cookies[SessionKeys.Login.UserAuthStateId] == null)
             {
                 // Convert GUID to a string and format as numeral to remove hyphens.
@@ -34,7 +35,11 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                 ctx.Response.Cookies.Add(new HttpCookie(SessionKeys.Login.UserAuthStateId)
                 {
                     Expires = DateTime.Now.AddMinutes(20),
-                    Value = id
+                    Value = id,
+                    // Error using Google Chrome addressed here
+                    Path = path + ";SameSite=None",
+                    Domain = "",
+                    Secure = true
                 });
             }
             else
