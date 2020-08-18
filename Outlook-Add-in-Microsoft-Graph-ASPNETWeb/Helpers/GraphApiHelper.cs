@@ -1,11 +1,19 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. Licensed under the MIT license. See full license in the root of the repo.
 using Microsoft.Ajax.Utilities;
 using Microsoft.Graph;
+using Microsoft.OData.Edm.EdmToClrConversion;
+using Microsoft.Office365.OutlookServices;
+using OutlookAddinMicrosoftGraphASPNET.Controllers;
+using OutlookAddinMicrosoftGraphASPNET.Models;
 using System;
 using System.IO;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
+using System.Web.UI;
 using System.Windows.Forms;
 
 namespace OutlookAddinMicrosoftGraphASPNET.Helpers
@@ -203,6 +211,168 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 
                 // In HTML
                 return email.Body.Content;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine(ex.ToString());
+                return null;
+            }
+
+        }
+
+
+        internal static async Task<Microsoft.Graph.IMailFolderMessagesCollectionPage> getMailFolderMessages(string folderId, string accessToken, string requestUri, string callbackToken)
+        {
+
+            var graphClient = new GraphServiceClient(
+               new DelegateAuthenticationProvider(
+                   async (requestMessage) =>
+                   {
+                       requestMessage.Headers.Authorization =
+                           new AuthenticationHeaderValue("Bearer", accessToken);
+                   }));
+
+            Microsoft.Graph.MailFolder mailFolder;
+
+            EmailController control = new EmailController();
+            // TESTING. For now just do inbox folder.
+            // Later do based on folderId
+            try
+            {
+
+                mailFolder = await graphClient.Me.MailFolders
+                                        .Inbox
+                                        .Request()
+                                        .GetAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine(ex.ToString());
+                return null;
+            }
+
+
+
+            try
+            {
+                int count = 0;
+
+                Microsoft.Graph.IMailFolderMessagesCollectionPage messages;
+
+                // First call to get the first 10 messages
+                messages = await graphClient.Me.MailFolders[mailFolder.Id]
+                                    .Messages
+                                    .Request()
+                                    .GetAsync();
+
+
+                foreach( var message in messages.CurrentPage)
+                {
+                    if ((message.HasAttachments != null && message.HasAttachments == true) || (Format.getBetween(message.Body.Content.ToString(), "<img", ">") != "") )
+                    {
+                        var attachments = await graphClient.Me.Messages[message.Id]
+                                            .Attachments
+                                            .Request()
+                                            .GetAsync();
+
+                        string[] attachmentIds = new string[attachments.CurrentPage.Count];
+                        int index = 0;
+                        string[] attachmentUrls = null;
+                        string[] attachmentNames = new string[attachments.CurrentPage.Count];
+                        string attachmentLocation = null;
+                        foreach (Microsoft.Graph.FileAttachment attachment in attachments.CurrentPage)
+                        {
+                            attachmentIds[index] = attachment.Id;
+                            attachmentNames[index++] = attachment.Name;
+
+                            string attachmentContent = Convert.ToBase64String(attachment.ContentBytes);
+
+                            // For files, build a stream directly from ContentBytes
+                            if (attachment.Size < (4 * 1024 * 1024))
+                            {
+                                MemoryStream fileStream = new MemoryStream(Convert.FromBase64String(attachmentContent));
+
+                                // OneDrive Save
+                               // attachmentLocation = await saveAttachmentOneDrive(accessToken, attachment.Name, fileStream, message.Subject);
+
+
+
+                            }
+
+                        }
+
+                        // Google Drive save
+                        GoogleController google = new GoogleController();
+                        SaveAttachmentRequest newRequest = new SaveAttachmentRequest()
+                        {
+                            filenames = attachmentNames,
+                            attachmentIds = attachmentIds,
+                            messageId = message.Id,
+                            outlookRestUrl = requestUri,
+                            outlookToken = callbackToken,
+                            subject = message.Subject
+                        };
+
+                        // Google Drive save
+                        attachmentLocation = await google.saveAttachmentGoogleDrive(newRequest);
+
+                        attachmentLocation = "https://drive.google.com/drive/u/1/folders/" + attachmentLocation;
+
+                        // Delete
+                        await deleteEmailAttachments(accessToken, attachmentIds, message.Id, attachmentUrls);
+
+                        // Patch new body to email
+                        await control.updateEmailBody(requestUri, attachmentLocation, message.Id, accessToken, callbackToken);
+                        /*
+                        using (var client = new HttpClient())
+                        {
+                            // Embed link
+                            var body = await control.addAttachmentsToBody(attachmentLocation, message.Id, accessToken);
+
+                            // Post updated body
+                            var method = new HttpMethod("PATCH");
+
+                            requestUri += "/v2.0/me/messages/" + message.Id;
+
+
+                            var iContent = new StringContent("{ 'Body' : {" +
+                                    " 'ContentType': '1', 'Content': '" + body.ToString() + "'} }", System.Text.Encoding.UTF8, "application/json");
+
+                            string myContent = await iContent.ReadAsStringAsync();
+
+                            var request = new HttpRequestMessage(method, requestUri)
+                            {
+                                Content = iContent
+                            };
+
+                            // Headers
+                            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", callbackToken);
+                            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                            var result = await client.SendAsync(request);
+                        }
+                        */
+                    }
+                }
+
+                // Page size is 10
+                count += 10;
+
+                // Iterate through all
+                while (mailFolder.TotalItemCount > count)
+                {
+
+                    messages = await graphClient.Me.MailFolders[mailFolder.Id]
+                                    .Messages
+                                    .Request()
+                                    .Skip(count)
+                                    .GetAsync();
+
+                    // Page size is 10
+                    count += 10;
+                }
+
+                return messages;
             }
             catch (Exception ex)
             {

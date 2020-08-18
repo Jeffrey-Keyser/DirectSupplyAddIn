@@ -18,6 +18,10 @@ Office.initialize = function () {
         $("#getConversationWithId").click(getConversationWithId);
         $("#saveAttachmentsOneDrive").click(saveAttachmentsOneDrive);
         $("#deleteCurrentEmail").click(deleteCurrentEmail);
+        $("#mailFolderCleanup").click(mailFolderCleanup);
+
+
+        // TODO: Methodize
         $("#loginGooglePopupButton").click(function () {
 
             var item = Office.context.mailbox.item;
@@ -67,6 +71,8 @@ Office.initialize = function () {
         });
     });
 };
+
+
 
 function itemChanged(eventArgs) {
     // Update UI based on the new current item
@@ -332,7 +338,7 @@ function saveAttachmentsOneDrive() {
         attachmentIds.push(attachmentRestId);
     }
 
-    // REST call to get token for ContentBytess
+    // REST call to get token for ContentBytes
     Office.context.mailbox.getCallbackTokenAsync({ isRest: true }, function (result) {
         if (result.status === "succeeded") {
 
@@ -400,6 +406,7 @@ function showCommands() {
 function embedAttachmentLinks(attachmentsLocation, emailId, accessToken) {
 
 
+
     var data = {
         attachmentsLocation: attachmentsLocation,
         emailId: emailId
@@ -438,7 +445,29 @@ function embedAttachmentLinks(attachmentsLocation, emailId, accessToken) {
             });
 
     });
+}
 
-    
+
+
+function mailFolderCleanup() {
+
+    // REST call to get token for ContentBytes
+    Office.context.mailbox.getCallbackTokenAsync({ isRest: true }, function (result) {
+        if (result.status === "succeeded") {
+
+            var data = {
+                folderId: "Placeholder",
+                requestUri: Office.context.mailbox.restUrl,
+                callbackToken: result.value
+            }
+
+            controllerCall("email", "getmailfoldermessages", "GET", data, function (result) {
+
+
+                console.debug("Mail folder cleanup returned")
+
+            });
+        }
+    });
 
 }

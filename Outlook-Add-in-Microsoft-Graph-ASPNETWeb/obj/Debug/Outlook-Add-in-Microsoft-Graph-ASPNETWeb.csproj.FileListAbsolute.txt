@@ -207,6 +207,7 @@ C:\Users\JeffPC\Source\Repos\PnP-OfficeAddins\Samples\auth\Outlook-Add-in-Micros
 C:\Users\JeffPC\Source\Repos\PnP-OfficeAddins\Samples\auth\Outlook-Add-in-Microsoft-Graph-ASPNET\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\obj\Debug\Outlook-Add-in-Microsoft-Graph-ASPNETWeb.csproj.CopyComplete
 C:\Users\JeffPC\Source\Repos\PnP-OfficeAddins\Samples\auth\Outlook-Add-in-Microsoft-Graph-ASPNET\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\obj\Debug\OutlookAddinMicrosoftGraphASPNET.dll
 C:\Users\JeffPC\Source\Repos\PnP-OfficeAddins\Samples\auth\Outlook-Add-in-Microsoft-Graph-ASPNET\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\obj\Debug\OutlookAddinMicrosoftGraphASPNET.pdb
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\obj\Debug\Outlook-Add-in-Microsoft-Graph-ASPNETWeb.csprojAssemblyReference.cache
 C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\obj\Debug\Outlook-Add-in-Microsoft-Graph-ASPNETWeb.csproj.CoreCompileInputs.cache
 C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\roslyn\csc.exe
 C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\bin\roslyn\csc.exe.config
@@ -475,4 +476,3 @@ C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-AS
 C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\obj\Debug\Outlook-Add-in-Microsoft-Graph-ASPNETWeb.csproj.CopyComplete
 C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\obj\Debug\OutlookAddinMicrosoftGraphASPNET.dll
 C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\obj\Debug\OutlookAddinMicrosoftGraphASPNET.pdb
-C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNETWeb\obj\Debug\Outlook-Add-in-Microsoft-Graph-ASPNETWeb.csprojAssemblyReference.cache

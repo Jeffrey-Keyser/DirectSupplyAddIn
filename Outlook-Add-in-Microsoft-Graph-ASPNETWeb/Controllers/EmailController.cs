@@ -1,9 +1,14 @@
-﻿using OutlookAddinMicrosoftGraphASPNET.Helpers;
+﻿using Microsoft.Graph;
+using Microsoft.Office365.OutlookServices;
+using OutlookAddinMicrosoftGraphASPNET.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Http.Controllers;
 using System.Web.Mvc;
 
 namespace OutlookAddinMicrosoftGraphASPNET.Controllers
@@ -53,12 +58,12 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
         /// Adds hyperlink to OneDrive in email's body if attachments present.
         /// </summary>
         /// <returns> Email's new body with hyperlink </returns>
-        public async Task<string> addAttachmentsToBody(string attachmentsLocation, string emailId)
+        public async Task<string> addAttachmentsToBody(string attachmentsLocation, string emailId, string accessToken)
         {
             // Get access token
-            var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
+       //     var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
 
-            string body = await GraphApiHelper.getMessageBody(token.AccessToken, emailId);
+            string body = await GraphApiHelper.getMessageBody(accessToken, emailId);
 
             // For embedded images, remove <img > before adding links
             string img;
@@ -70,9 +75,9 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 
                 // Replace with hyperlink to attachment
                 string delete = "<img " + img + ">";
-                hyperlink = "<a href=\"" + attachmentsLocation + "\"> View Attachments on OneDrive </a>";
+                hyperlink = "<a href=\"" + attachmentsLocation + "\"> View Attachments </a>";
 
-                // Replace first <img > with hyperlink
+                // Replace first <img > with hyperlink 
                 if (oneLinkAvailable && img != "")
                 {
                     body = body.Replace(delete, hyperlink);
@@ -99,5 +104,59 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
             }
             return body;
         }
+
+
+        /// <summary>
+        /// Retrieves all messages in a specific user mailFolder
+        /// </summary>
+        public async Task<Microsoft.Graph.IMailFolderMessagesCollectionPage> getMailFolderMessages(string folderId, string requestUri, string callbackToken)
+        {
+
+            // Get access token
+            var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
+
+            // TODO: Comes in chunks of 10, need to iterate through all...
+            var messages = await GraphApiHelper.getMailFolderMessages(folderId, token.AccessToken, requestUri, callbackToken);
+
+
+            return messages;
+        }
+
+
+        public async Task<HttpResponseMessage> updateEmailBody(string requestUri, string attachmentLocation, string messageId, string accessToken, string callbackToken)
+        {
+            HttpResponseMessage result;
+
+            using (var client = new HttpClient())
+            {
+                // Embed link
+                var body = await addAttachmentsToBody(attachmentLocation, messageId, accessToken);
+
+                // Post updated body
+                var method = new HttpMethod("PATCH");
+
+                requestUri += "/v2.0/me/messages/" + messageId;
+
+
+                var iContent = new StringContent("{ 'Body' : {" +
+                        " 'ContentType': '1', 'Content': '" + body.ToString() + "'} }", System.Text.Encoding.UTF8, "application/json");
+
+                string myContent = await iContent.ReadAsStringAsync();
+
+                var request = new HttpRequestMessage(method, requestUri)
+                {
+                    Content = iContent
+                };
+
+                // Headers
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", callbackToken);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                result = await client.SendAsync(request);
+            }
+
+            return result;
+        }
+
     }
 }
