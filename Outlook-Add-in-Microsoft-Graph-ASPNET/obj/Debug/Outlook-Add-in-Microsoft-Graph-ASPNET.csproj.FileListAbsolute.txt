@@ -64,3 +64,4 @@ C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-AS
 C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNET\bin\Debug\roslyn\VBCSCompiler.exe.config
 C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNET\bin\Debug\OfficeAddinMicrosoftGraphASPNET.dll.config
 C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNET\obj\Debug\Outlook-Add-in-Microsoft-Graph-ASPNET.csproj.CoreCompileInputs.cache
+C:\Users\JeffPC\Source\Repos\DirectSupplyAddIn\Outlook-Add-in-Microsoft-Graph-ASPNET\obj\Debug\Outlook-Add-in-Microsoft-Graph-ASPNET.csprojAssemblyReference.cache

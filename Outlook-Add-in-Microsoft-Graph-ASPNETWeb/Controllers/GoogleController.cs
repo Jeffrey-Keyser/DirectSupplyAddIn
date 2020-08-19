@@ -37,6 +37,10 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Finds a folder with name 'foldername' in Google Drive
+        /// </summary>
+        /// <returns> Google Drive File Object if found </returns>
         public Google.Apis.Drive.v3.Data.File findFolder(DriveService service, string foldername)
         {
             FilesResource.ListRequest request;
@@ -47,7 +51,8 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
             var result = request.Execute();
             Google.Apis.Drive.v3.Data.File file;
 
-            // Should only be one, maybe need better checking
+            // Should only be one, but Google Drive allows for multiple files with same name.
+            // Maybe need better checking
             if (result.Files.Count() == 1)
                 file = result.Files.FirstOrDefault();
             else
@@ -57,6 +62,11 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
             return file;
         }
 
+        /// <summary>
+        /// Creates a folder in Google Drive
+        /// </summary>
+        /// <param name="parentId">Id of parent folder if subfolder is desired. If null creates in Home directory </param>
+        /// <returns> Id of folder created </returns>
         public string createFolderGoogleDrive(DriveService service, string filename, string parentId)
         {
             FilesResource.CreateRequest createRequest;
@@ -81,6 +91,10 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 
         [System.Web.Http.HttpPost]
 
+        /// <summary>
+        /// Saves attachments on Outlook email to Google Drive
+        /// </summary>
+        /// <returns> Id of folder containing attachments </returns>
         public async Task<string> saveAttachmentGoogleDrive([FromBody] SaveAttachmentRequest request)
         {
             UserCredential credential;
@@ -111,8 +125,6 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                 ApplicationName = ApplicationName,
             });
 
-            // TODO: If parent folder not created, Create
-            // Also create subfolder with subject of email.
 
 
             FilesResource.CreateMediaUpload uploadRequest;
@@ -132,6 +144,8 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
             {
                 childId = createFolderGoogleDrive(service, request.subject, folder.Id);
             }
+
+
 
             using (var client = new HttpClient())
             {
@@ -200,6 +214,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
             return parentId;
         }
 
+        /* Authorize current the same as saveAttachmentGoogleDrive */
         [System.Web.Http.HttpPost]
         public async Task<string> Authorize([FromBody] SaveAttachmentRequest request)
         {
@@ -230,10 +245,6 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                 HttpClientInitializer = credential,
                 ApplicationName = ApplicationName,
             });
-
-            // TODO: If parent folder not created, Create
-            // Also create subfolder with subject of email.
-
 
             FilesResource.CreateMediaUpload uploadRequest;
 
@@ -318,51 +329,6 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 
 
             /* End get attachment */
-
-
-
-
-
-            /*using (var stream = new System.IO.FileStream("C:/Users/JeffPC/Documents/report.txt",
-                        System.IO.FileMode.Open))
-            {
-                uploadRequest = service.Files.Create(
-                   fileMetaData, stream, "text/plain");
-                uploadRequest.Fields = "id";
-                uploadRequest.Upload();
-            }
-            try
-            {
-                var file = uploadRequest.ResponseBody;
-                Console.WriteLine("File ID: " + file.Id);
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            // Define parameters of request.
-            
-            FilesResource.ListRequest listRequest = service.Files.List();
-            listRequest.PageSize = 10;
-            listRequest.Fields = "nextPageToken, files(id, name)";
-
-            // List files.
-            IList<Google.Apis.Drive.v3.Data.File> files = listRequest.Execute()
-                .Files;
-            Console.WriteLine("Files:");
-            if (files != null && files.Count > 0)
-            {
-                foreach (var file in files)
-                {
-                    Console.WriteLine("{0} ({1})", file.Name, file.Id);
-                }
-            }
-            else
-            {
-                Console.WriteLine("No files found.");
-            }
-            Console.Read();
-            */
 
             return parentId;
         }

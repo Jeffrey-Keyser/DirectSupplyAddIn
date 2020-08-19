@@ -130,9 +130,6 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                 DriveItem newItem = await graphClient.Me.Drive.Root.ItemWithPath(relativeFilePath)
                     .Content.Request().PutAsync<DriveItem>(fileContent);
 
-                // Embed url in the email.
-                // newItem.WebUrl
-
                 return newItem.WebUrl;
             }
             catch (Exception ex)
@@ -234,9 +231,8 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 
             Microsoft.Graph.MailFolder mailFolder;
 
-            EmailController control = new EmailController();
             // TESTING. For now just do inbox folder.
-            // Later do based on folderId
+            // Later maybe do based on folderId?
             try
             {
 
@@ -259,118 +255,22 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 
                 Microsoft.Graph.IMailFolderMessagesCollectionPage messages;
 
-                // First call to get the first 10 messages
-                messages = await graphClient.Me.MailFolders[mailFolder.Id]
-                                    .Messages
-                                    .Request()
-                                    .GetAsync();
-
-
-                foreach( var message in messages.CurrentPage)
+                do
                 {
-                    if ((message.HasAttachments != null && message.HasAttachments == true) || (Format.getBetween(message.Body.Content.ToString(), "<img", ">") != "") )
-                    {
-                        var attachments = await graphClient.Me.Messages[message.Id]
-                                            .Attachments
-                                            .Request()
-                                            .GetAsync();
-
-                        string[] attachmentIds = new string[attachments.CurrentPage.Count];
-                        int index = 0;
-                        string[] attachmentUrls = null;
-                        string[] attachmentNames = new string[attachments.CurrentPage.Count];
-                        string attachmentLocation = null;
-                        foreach (Microsoft.Graph.FileAttachment attachment in attachments.CurrentPage)
-                        {
-                            attachmentIds[index] = attachment.Id;
-                            attachmentNames[index++] = attachment.Name;
-
-                            string attachmentContent = Convert.ToBase64String(attachment.ContentBytes);
-
-                            // For files, build a stream directly from ContentBytes
-                            if (attachment.Size < (4 * 1024 * 1024))
-                            {
-                                MemoryStream fileStream = new MemoryStream(Convert.FromBase64String(attachmentContent));
-
-                                // OneDrive Save
-                               // attachmentLocation = await saveAttachmentOneDrive(accessToken, attachment.Name, fileStream, message.Subject);
-
-
-
-                            }
-
-                        }
-
-                        // Google Drive save
-                        GoogleController google = new GoogleController();
-                        SaveAttachmentRequest newRequest = new SaveAttachmentRequest()
-                        {
-                            filenames = attachmentNames,
-                            attachmentIds = attachmentIds,
-                            messageId = message.Id,
-                            outlookRestUrl = requestUri,
-                            outlookToken = callbackToken,
-                            subject = message.Subject
-                        };
-
-                        // Google Drive save
-                        attachmentLocation = await google.saveAttachmentGoogleDrive(newRequest);
-
-                        attachmentLocation = "https://drive.google.com/drive/u/1/folders/" + attachmentLocation;
-
-                        // Delete
-                        await deleteEmailAttachments(accessToken, attachmentIds, message.Id, attachmentUrls);
-
-                        // Patch new body to email
-                        await control.updateEmailBody(requestUri, attachmentLocation, message.Id, accessToken, callbackToken);
-                        /*
-                        using (var client = new HttpClient())
-                        {
-                            // Embed link
-                            var body = await control.addAttachmentsToBody(attachmentLocation, message.Id, accessToken);
-
-                            // Post updated body
-                            var method = new HttpMethod("PATCH");
-
-                            requestUri += "/v2.0/me/messages/" + message.Id;
-
-
-                            var iContent = new StringContent("{ 'Body' : {" +
-                                    " 'ContentType': '1', 'Content': '" + body.ToString() + "'} }", System.Text.Encoding.UTF8, "application/json");
-
-                            string myContent = await iContent.ReadAsStringAsync();
-
-                            var request = new HttpRequestMessage(method, requestUri)
-                            {
-                                Content = iContent
-                            };
-
-                            // Headers
-                            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", callbackToken);
-                            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                            var result = await client.SendAsync(request);
-                        }
-                        */
-                    }
-                }
-
-                // Page size is 10
-                count += 10;
-
-                // Iterate through all
-                while (mailFolder.TotalItemCount > count)
-                {
-
+                    // First call to get the first 10 messages
                     messages = await graphClient.Me.MailFolders[mailFolder.Id]
-                                    .Messages
-                                    .Request()
-                                    .Skip(count)
-                                    .GetAsync();
+                                        .Messages
+                                        .Request()
+                                        .Skip(count)
+                                        .GetAsync();
 
-                    // Page size is 10
+                    if (!await cleanupMessages(messages, graphClient, accessToken, callbackToken, requestUri))
+                        return null;
+
                     count += 10;
-                }
+
+                } while (mailFolder.TotalItemCount > count);
+
 
                 return messages;
             }
@@ -380,6 +280,91 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                 return null;
             }
 
+        }
+
+        /// <summary>
+        /// Given a set of messages, this function iterates through them
+        /// and saves (to either OneDrive or Google Drive), deletes, and embeds a hyperlink to attachment location
+        /// </summary>
+        /// <returns> Returns true if attachments were successfully cleaned </returns>
+        internal static async Task<bool> cleanupMessages(IMailFolderMessagesCollectionPage messages, GraphServiceClient graphClient, string accessToken, string callbackToken, string requestUri)
+        {
+            EmailController control = new EmailController();
+
+
+            foreach (var message in messages.CurrentPage)
+            {
+                if ((message.HasAttachments != null && message.HasAttachments == true) || (Format.getBetween(message.Body.Content.ToString(), "<img", ">") != ""))
+                {
+                    var attachments = await graphClient.Me.Messages[message.Id]
+                                        .Attachments
+                                        .Request()
+                                        .GetAsync();
+
+                    string[] attachmentIds = new string[attachments.CurrentPage.Count];
+                    int index = 0;
+                    string[] attachmentUrls = null;
+                    string[] attachmentNames = new string[attachments.CurrentPage.Count];
+                    string attachmentLocation = null;
+                    foreach (Microsoft.Graph.FileAttachment attachment in attachments.CurrentPage)
+                    {
+                        attachmentIds[index] = attachment.Id;
+                        attachmentNames[index++] = attachment.Name;
+
+                        string attachmentContent = Convert.ToBase64String(attachment.ContentBytes);
+
+                        // For files, build a stream directly from ContentBytes
+                        if (attachment.Size < (4 * 1024 * 1024))
+                        {
+                            MemoryStream fileStream = new MemoryStream(Convert.FromBase64String(attachmentContent));
+
+                            // OneDrive Save
+                            attachmentLocation = await saveAttachmentOneDrive(accessToken, attachment.Name, fileStream, message.Subject);
+
+                        }
+                        else
+                        {
+                            // TODO: need to implement functionality for size > 4MB
+                            return false;
+                        }
+
+                    }
+
+                    // TODO: Google controller goes through all attachments by itself
+                    // Should probably have it same as OneDrive saving (which does each email)
+                    // Need to convert one of the two..
+
+                    /* Google Drive save start */
+                    /*
+                    GoogleController google = new GoogleController();
+                    SaveAttachmentRequest newRequest = new SaveAttachmentRequest()
+                    {
+                        filenames = attachmentNames,
+                        attachmentIds = attachmentIds,
+                        messageId = message.Id,
+                        outlookRestUrl = requestUri,
+                        outlookToken = callbackToken,
+                        subject = message.Subject
+                    };
+
+                    attachmentLocation = await google.saveAttachmentGoogleDrive(newRequest);
+
+                    attachmentLocation = "https://drive.google.com/drive/u/1/folders/" + attachmentLocation;
+                    */
+                    /* Google Drive save end */
+
+
+
+                    // Delete
+                    await deleteEmailAttachments(accessToken, attachmentIds, message.Id, attachmentUrls);
+
+                    // Patch new body to email
+                    await control.updateEmailBody(requestUri, attachmentLocation, message.Id, accessToken, callbackToken);
+
+                }
+            }
+
+            return true;
         }
 
 

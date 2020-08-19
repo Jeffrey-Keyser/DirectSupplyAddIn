@@ -1,7 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved. Licensed under the MIT license. See full license in the root of the repo.
-
-/* Common app functionality */
-
+﻿/* Common app functionality */
 (function () {
     "use strict";
 

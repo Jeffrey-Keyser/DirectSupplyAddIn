@@ -1,7 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved. Licensed under the MIT license. See full license in the root of the repo.
-
-"use strict";
-
+﻿"use strict";
 let dialog;
 
 Office.initialize = function () {
@@ -451,6 +448,10 @@ function embedAttachmentLinks(attachmentsLocation, emailId, accessToken) {
 
 function mailFolderCleanup() {
 
+    $("#instructionsContainer").hide();
+    $("#waitContainer").show();
+
+
     // REST call to get token for ContentBytes
     Office.context.mailbox.getCallbackTokenAsync({ isRest: true }, function (result) {
         if (result.status === "succeeded") {
@@ -463,6 +464,8 @@ function mailFolderCleanup() {
 
             controllerCall("email", "getmailfoldermessages", "GET", data, function (result) {
 
+                $("#waitContainer").hide();
+                $("#instructionsContainer").show();
 
                 console.debug("Mail folder cleanup returned")
 
