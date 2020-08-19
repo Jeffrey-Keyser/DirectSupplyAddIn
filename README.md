@@ -20,14 +20,14 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+  <a href="https://github.com/Jeffrey-Keyser/DirectSupplyAddIn">
+    <img src="Outlook-Add-in-Microsoft-Graph-ASPNETWeb/Content/directsupplylogo80x80.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">Outlook Web App (OWA) Add-in</h3>
 
   <p align="center">
-    An awesome README template to jumpstart your projects!
+    Setup Document
     <br />
     <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
     <br />
@@ -47,8 +47,8 @@
 
 * [About the Project](#about-the-project)
   * [Built With](#built-with)
+* [Prerequisites](#prerequisites)
 * [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
   * [Installation](#installation)
 * [Usage](#usage)
 * [Roadmap](#roadmap)
@@ -62,7 +62,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+[![Product Name Screen Shot][product-screenshot]](Outlook-Add-in-Microsoft-Graph-ASPNETWeb/Content/directsupplylogo80x80.png)
 
 This is a Outlook Web App (OWA) Add-in designed during my internship at Direct Supply! The ultimate goal of this project is to create an add-in that can maximize a user's mailbox space through the deletion of attachments and unnecessary email threads.
 
@@ -91,9 +91,9 @@ This section lists the major frameworks that my project uses.
 Before getting started there are a few requirements you must ensure are fulfilled before beginning.
 
 You should have:
-* Access to Office 365 tenant or Outlook.com account that can use [Azure Active Directory admin center (https://aad.portal.azure.com/#@jeffreykeyser.onmicrosoft.com/dashboard/private/d5187d35-1fdc-4a26-9e3d-8e2939e56018) for registering the app.
+* Access to Office 365 tenant or Outlook.com account that can use [Azure Active Directory admin center](https://aad.portal.azure.com/#@jeffreykeyser.onmicrosoft.com/dashboard/private/d5187d35-1fdc-4a26-9e3d-8e2939e56018) for registering the app.
   * Failure to use a developer account will result in Graph API call not working and in a MailboxNotEnabledForRESTAPI error
-  * See [Overview for REST APIs] (https://docs.microsoft.com/en-us/outlook/rest/get-started) for more details.
+  * See [Overview for REST APIs](https://docs.microsoft.com/en-us/outlook/rest/get-started) for more details.
 * Patience :triumph:
 
 <!-- GETTING STARTED -->
@@ -102,12 +102,12 @@ You should have:
 Alright, time to begin
 
 1. First you will need to register the application in the [Microsoft Application Registration Portal](https://apps.dev.microsoft.com/) in order to obtain an app ID for accessing the Microsoft Graph API.
-  1. **Log in with the identity of an administrator of your Office 365 tenancy to ensure that you are working in an Azure Active Directory that is associated with that tenancy** See [Register an application with the Microsoft Identity Platform](https://docs.microsoft.com/en-us/graph/auth-register-app-v2)
-  1. There click the **Go to app list** button and then the **Add an app** button. Enter a name for the application and click **Create application**.
-  1. Locate the **Application Secrets** section, and click **Generate New Password**. A dialog box will appear with the generated password. Copy this value and save it somewhere secure. After leaving this page, you will no longer be able to access this password.
-  1. Locate the **Platforms** section, and click **Add Platform**. Choose **Web**, then enter 'https://localhost:44301/AzureADAuth/Authorize' under **Redirect URIs.**
-    > **Note:** The port number in the redirect URI (`44349`) may be different on your development machine. You can find the correct port number for your machine by selecting the **Outlook-Add-in-Microsoft-GraphASPNETWeb** project in **Solution Explorer**, then looking at the **SSL URL** setting under **Development Server** in the properties window. Verify that **SSL Enabled** is **True**.
-  1. Locate the **Microsoft Graph Permissions** section in the app registration. Next to **Delegated Permissions**, click **Add**. Select **Files.ReadWrite.All**, **Mail.ReadWrite**, **User.Read**. Next to **Application Permissions** grant the following: **email**, **Mail.ReadWrite**, **offline_access**, **openid**, and **profile**.
+    1. **Log in with the identity of an administrator of your Office 365 tenancy to ensure that you are working in an Azure Active Directory that is associated with that tenancy** . See [Register an application with the Microsoft Identity Platform](https://docs.microsoft.com/en-us/graph/auth-register-app-v2)
+    1. There click the **Go to app list** button and then the **Add an app** button. Enter a name for the application and click **Create application**.
+    1. Locate the **Application Secrets** section, and click **Generate New Password**. A dialog box will appear with the generated password. Copy this value and save it somewhere secure. After leaving this page, you will no longer be able to access this password.
+    1. Locate the **Platforms** section, and click **Add Platform**. Choose **Web**, then enter 'https://localhost:44301/AzureADAuth/Authorize' under **Redirect URIs.**
+      >**Note:** The port number in the redirect URI (`44301`) may be different on your development machine. You can find the correct port number for your machine by selecting the **Outlook-Add-in-Microsoft-GraphASPNETWeb** project in **Solution Explorer**, then looking at the **SSL URL** setting under **Development Server** in the properties window. Verify that **SSL Enabled** is **True**.
+    1. Locate the **Microsoft Graph Permissions** section in the app registration. Next to **Delegated Permissions**, click **Add**. Select **Files.ReadWrite.All**, **Mail.ReadWrite**, **User.Read**. Next to **Application Permissions** grant the following: **email**, **Mail.ReadWrite**, **offline_access**, **openid**, and **profile**.
   
 2. Ensure the following settings are used:
   - SUPPORTED ACCOUNT TYPES: "Accounts in this organizational directory only"
@@ -120,7 +120,8 @@ Here's an example of what the page should look like when your done.
 Edit [Web.config](https://github.com/Jeffrey-Keyser/DirectSupplyAddIn/blob/master/Outlook-Add-in-Microsoft-Graph-ASPNETWeb/Web.config) and replace 'YOUR APP ID HERE' with the application ID and 'YOUR APP PASSWORD HERE' with the application secret you generated at the beginning. Also replace 'YOUR TENANT ID HERE' with the directory tenant ID found on the app registration site.
 
 
-(*Optional*) For Configuring Google Drive API
+ *Optional* **For Configuring Google Drive API **
+
 TODO:
 
 
@@ -193,27 +194,15 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+Jeffrey Keyser - jeff.keyser@outlook.com
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
-
+Project Link: [Direct Supply Add-in](https://github.com/Jeffrey-Keyser/DirectSupplyAddIn)
 
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 * [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Img Shields](https://shields.io)
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Pages](https://pages.github.com)
-* [Animate.css](https://daneden.github.io/animate.css)
-* [Loaders.css](https://connoratherton.com/loaders)
-* [Slick Carousel](https://kenwheeler.github.io/slick)
-* [Smooth Scroll](https://github.com/cferdinandi/smooth-scroll)
-* [Sticky Kit](http://leafo.net/sticky-kit)
-* [JVectorMap](http://jvectormap.com)
-* [Font Awesome](https://fontawesome.com)
-
-
+* [Readme Template](https://github.com/othneildrew/Best-README-Template)
 
 
 
