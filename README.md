@@ -120,10 +120,9 @@ Here's an example of what the page should look like when your done.
 Edit [Web.config](https://github.com/Jeffrey-Keyser/DirectSupplyAddIn/blob/master/Outlook-Add-in-Microsoft-Graph-ASPNETWeb/Web.config) and replace 'YOUR APP ID HERE' with the application ID and 'YOUR APP PASSWORD HERE' with the application secret you generated at the beginning. Also replace 'YOUR TENANT ID HERE' with the directory tenant ID found on the app registration site.
 
 
- *Optional* **For Configuring Google Drive API **
+ *Optional* - **For Configuring Google Drive Saving **
 
-TODO:
-
+Follow steps (1-4) found [Here](https://developers.google.com/drive/api/v3/quickstart/dotnet). Ignore step 3c.
 
 ## Run the solution
 
@@ -139,8 +138,8 @@ The remaining steps depend on whether you are running the add-in in desktop Outl
 
 ### Run the solution with Outlook on the web
 
-1. Outlook for Web will open in a browser window. In Outlook, click **New** to create a new email message. 
-2. Below the compose form is a tool bar with buttons for **Send**, **Discard**, and other utilities. Depending on which **Outlook on the web** experience you are using, the icon for the add-in is either near the far right end of this tool bar or it is on the drop down down menu that opens when you click the **...** button on this tool bar.
+1. Outlook for Web will open in a browser window. In Outlook, click on any email.
+2. On the right when you click the **...** button on this tool bar the following icon should appear.
 
    ![Icon for Insert Files Add-in](Outlook-Add-in-Microsoft-Graph-ASPNETWeb/Content/directsupplylogo32x32.png)
 
