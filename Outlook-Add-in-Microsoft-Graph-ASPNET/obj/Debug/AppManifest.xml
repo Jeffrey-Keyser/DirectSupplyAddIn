@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <App xmlns="http://schemas.microsoft.com/sharepoint/2012/app/manifest"
      Name="Outlook-Add-in-Microsoft-Graph-ASPNET"
-     ProductID="{2b4cff08-a552-46f5-920a-f9dc40899cc5}"
+     ProductID="{a4883438-1951-4385-af6f-23394c7578e2}"
      Version="1.0.0.0"
      SharePointMinVersion="15.0.0.0"
 >

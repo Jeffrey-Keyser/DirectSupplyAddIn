@@ -1,5 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved. Licensed under the MIT license. See full license in the root of the repo.
-using Microsoft.Ajax.Utilities;
+﻿using Microsoft.Ajax.Utilities;
 using Microsoft.Graph;
 using Microsoft.OData.Edm.EdmToClrConversion;
 using Microsoft.Office365.OutlookServices;
@@ -108,6 +107,45 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 
         }
 
+
+        /// <summary>
+        /// Saves attachment to OneDrive under the parent 'Outlook Attachments' and under child 'Email subject' 
+        /// </summary>
+        /// <returns> Attachment's url location </returns>
+        internal static async Task<DriveItem> searchFileOneDrive(string accessToken, string filename)
+        {
+            var graphClient = new GraphServiceClient(
+                new DelegateAuthenticationProvider(
+                    async (requestMessage) =>
+                    {
+                        requestMessage.Headers.Authorization =
+                            new AuthenticationHeaderValue("Bearer", accessToken);
+                    }));
+
+            try
+            {
+                // This method only supports files less than 4MB
+                IDriveItemSearchCollectionPage results = await graphClient.Me.Drive.Root.Search($"{filename}")
+                                        .Request()
+                                        .GetAsync();
+
+                if (results.CurrentPage.Count < 1)
+                    return null;
+
+                // TODO: Check for Count > 1
+                
+                // CurrentPage[0] is the parent folder everything after is child.
+                return results.CurrentPage[0];
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine(ex.ToString());
+                return null;
+            }
+
+        }
+
+
         /// <summary>
         /// Saves attachment to OneDrive under the parent 'Outlook Attachments' and under child 'Email subject' 
         /// </summary>
@@ -126,7 +164,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 
             try
             {
-                // This method only supports files 4MB or less
+                // This method only supports files less than 4MB
                 DriveItem newItem = await graphClient.Me.Drive.Root.ItemWithPath(relativeFilePath)
                     .Content.Request().PutAsync<DriveItem>(fileContent);
 
@@ -235,7 +273,6 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
             // Later maybe do based on folderId?
             try
             {
-
                 mailFolder = await graphClient.Me.MailFolders
                                         .Inbox
                                         .Request()
@@ -246,8 +283,6 @@ namespace OutlookAddinMicrosoftGraphASPNET.Helpers
                 System.Diagnostics.Trace.WriteLine(ex.ToString());
                 return null;
             }
-
-
 
             try
             {

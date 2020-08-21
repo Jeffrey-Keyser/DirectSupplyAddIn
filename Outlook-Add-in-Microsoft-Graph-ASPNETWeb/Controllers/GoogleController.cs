@@ -107,6 +107,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                 //string credPath = "token.json";
                 var credPath = System.Web.HttpContext.Current.Server.MapPath("/App_Data/MyGoogleStorage");
 
+                // Token will be stored in App_Data folder located in this project
 
                 credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                     GoogleClientSecrets.Load(stream).Secrets,
@@ -208,8 +209,6 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 
 
             }
-
-
 
             return parentId;
         }

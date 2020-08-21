@@ -61,9 +61,10 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
         public async Task<string> addAttachmentsToBody(string attachmentsLocation, string emailId, string accessToken)
         {
             // Get access token
-       //     var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
+            // Was commented out
+            var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
 
-            string body = await GraphApiHelper.getMessageBody(accessToken, emailId);
+            string body = await GraphApiHelper.getMessageBody(token.AccessToken, emailId);
 
             // For embedded images, remove <img > before adding links
             string img;

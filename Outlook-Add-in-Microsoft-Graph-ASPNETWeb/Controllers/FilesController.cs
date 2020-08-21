@@ -16,6 +16,7 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace OutlookAddinMicrosoftGraphASPNET.Controllers
 {
@@ -96,7 +97,7 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                         // Get access token from SQL database
                         var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
 
-                        // TODO: Check if the file already exists
+                        // TODO: Check if the file already exists 
 
                         attachmentsUrl =  await GraphApiHelper.saveAttachmentOneDrive(token.AccessToken, Format.MakeFileNameValid(request.filenames[i]), fileStream, Format.MakeFileNameValid(request.subject));
 
@@ -108,9 +109,32 @@ namespace OutlookAddinMicrosoftGraphASPNET.Controllers
                     }
                     else
                     {
-                        // TODO: Implement functionality to support > 4 MB files
+                        // Functionality to support > 4 MB files
+                        // See https://docs.microsoft.com/en-us/graph/api/driveitem-createuploadsession?view=graph-rest-1.0
+                        var token = Data.GetUserSessionToken(Settings.GetUserAuthStateId(ControllerContext.HttpContext), Settings.AzureADAuthority);
 
-                        return null;
+                        DriveItem folder = await GraphApiHelper.searchFileOneDrive(token.AccessToken, "Outlook Attachments");
+
+
+                        var url = "https://graph.microsoft.com/v1.0" + $"/me/drive/items/{folder.Id}:/{attachment.Name}:/createUploadSession";
+                        var uploadReq = new HttpRequestMessage(HttpMethod.Post, url);
+
+
+                        // Headers
+                        uploadReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+
+                        // Send request
+                        var sessionResponse = client.SendAsync(uploadReq).Result.Content.ReadAsStringAsync().Result;
+
+
+                        var uploadSession = JsonConvert.DeserializeObject<UploadSessionResponse>(sessionResponse);
+
+                        Upload upload = new Upload();
+
+                        HttpResponseMessage response = upload.UploadFileBySession(uploadSession.uploadUrl, Convert.FromBase64String(attachment.ContentBytes));
+
+
+                        return folder.WebUrl;
                     }
                 }  
 

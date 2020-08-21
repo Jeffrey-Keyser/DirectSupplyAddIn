@@ -7,7 +7,7 @@ using System.Web;
 namespace OutlookAddinMicrosoftGraphASPNET.Helpers
 {
     // <summary>
-    // For string formatting
+    // For general formatting
     //</summary>
     public class Format
     {
