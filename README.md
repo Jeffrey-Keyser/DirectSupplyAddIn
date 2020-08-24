@@ -158,7 +158,25 @@ TODO:
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+Here is a walkthrough of what the app looks like currently.
+
+
+1.) Load email via VS
+
+![Find app](images/FindAddin.PNG)
+
+2.) Click on the **...** button on the right of an email for this menu to appear.
+
+![Find app2](images/FindAddin2.PNG)
+
+3.) After clicking the Direct Supply icon, the add-in show look like this. Sign in with your email account.
+
+![Open_app](images/AddinOpened.PNG)
+
+4.) After signing in, the menu should look like this. Now you can click on the commands to get started!
+
+![Signin_app](images/AddinSignedIn.PNG)
+
 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
