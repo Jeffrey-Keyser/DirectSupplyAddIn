@@ -16,7 +16,6 @@
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
-
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
@@ -120,7 +119,7 @@ Here's an example of what the page should look like when your done.
 Edit [Web.config](https://github.com/Jeffrey-Keyser/DirectSupplyAddIn/blob/master/Outlook-Add-in-Microsoft-Graph-ASPNETWeb/Web.config) and replace 'YOUR APP ID HERE' with the application ID and 'YOUR APP PASSWORD HERE' with the application secret you generated at the beginning. Also replace 'YOUR TENANT ID HERE' with the directory tenant ID found on the app registration site.
 
 
- *Optional* - **For Configuring Google Drive Saving **
+ *Optional* - **For Configuring Google Drive Saving**
 
 Follow steps (1-4) found [Here](https://developers.google.com/drive/api/v3/quickstart/dotnet). Ignore step 3c.
 
@@ -178,7 +177,7 @@ Here is a walkthrough of what the app looks like currently.
 ![Signin_app](images/AddinSignedIn.PNG)
 
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+_For more examples, please refer to the [Documentation](https://github.com/Jeffrey-Keyser/DirectSupplyAddIn/tree/master/Documentation)_
 
 
 
