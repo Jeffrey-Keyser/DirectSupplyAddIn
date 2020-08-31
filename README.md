@@ -90,6 +90,7 @@ This section lists the major frameworks that my project uses.
 Before getting started there are a few requirements you must ensure are fulfilled before beginning.
 
 You should have:
+* Visual Studio 2019
 * Access to Office 365 tenant or Outlook.com account that can use [Azure Active Directory admin center](https://aad.portal.azure.com/#@jeffreykeyser.onmicrosoft.com/dashboard/private/d5187d35-1fdc-4a26-9e3d-8e2939e56018) for registering the app.
   * Failure to use a developer account will result in Graph API call not working and in a MailboxNotEnabledForRESTAPI error
   * See [Overview for REST APIs](https://docs.microsoft.com/en-us/outlook/rest/get-started) for more details.
