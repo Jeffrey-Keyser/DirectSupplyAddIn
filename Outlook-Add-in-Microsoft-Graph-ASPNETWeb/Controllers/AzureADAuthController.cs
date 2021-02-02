@@ -1,5 +1,3 @@
-﻿// Copyright (c) Microsoft. All rights reserved. Licensed under the MIT license. See full license in the root of the repo.
-
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;
